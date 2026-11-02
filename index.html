@@ -1,0 +1,1855 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Fieldwork — Business Simulation Lab</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f5f6f3;
+      --surface: #fff;
+      --surface-soft: #f8f9f7;
+      --ink: #202820;
+      --muted: #788078;
+      --line: #e8ebe6;
+      --green: #2f704e;
+      --green-dark: #245c3e;
+      --green-soft: #e8f2eb;
+      --amber: #a56a1e;
+      --amber-soft: #fbf1df;
+      --red: #b44f46;
+      --red-soft: #f9eae8;
+      --shadow: 0 8px 26px rgb(29 44 31 / 5%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --page: #151a16;
+        --surface: #1e251f;
+        --surface-soft: #252d26;
+        --ink: #edf2eb;
+        --muted: #a0aaa0;
+        --line: #343e35;
+        --green: #94cba4;
+        --green-dark: #b4dfbd;
+        --green-soft: #293a2d;
+        --amber: #e5ba72;
+        --amber-soft: #3a3021;
+        --red: #e59186;
+        --red-soft: #3b2927;
+        --shadow: 0 8px 26px rgb(0 0 0 / 15%);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; background: var(--page); color: var(--ink); font-size: 14px; }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .layout { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      display: flex;
+      height: 100vh;
+      flex-direction: column;
+      padding: 22px 14px 16px;
+      border-right: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .brand { display: flex; align-items: center; gap: 11px; padding: 2px 10px 24px; }
+    .brand-mark { display: grid; width: 35px; height: 35px; place-items: center; border-radius: 11px; background: var(--green); color: #fff; font-size: 18px; font-weight: 750; }
+    .brand-name { font-size: 15px; font-weight: 750; letter-spacing: -.03em; }
+    .brand-caption { margin-top: 2px; color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .company-switcher { display: flex; align-items: center; gap: 10px; margin: 0 2px 22px; padding: 11px 10px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); text-align: left; cursor: pointer; }
+    .company-icon { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--amber-soft); color: var(--amber); font-weight: 750; }
+    .company-switcher-copy { overflow: hidden; flex: 1; }
+    .company-switcher-copy strong, .company-switcher-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .company-switcher-copy strong { font-size: 12px; }
+    .company-switcher-copy small { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .company-chevron { color: var(--muted); }
+    .nav-label { padding: 0 11px 9px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+    .nav { display: grid; gap: 4px; }
+    .nav-button { display: flex; align-items: center; gap: 12px; min-height: 41px; padding: 0 11px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; text-align: left; transition: background .16s, color .16s; }
+    .nav-button:hover { background: var(--surface-soft); color: var(--ink); }
+    .nav-button[aria-current="page"] { background: var(--green-soft); color: var(--green-dark); font-weight: 650; }
+    .nav-icon { display: grid; width: 18px; place-items: center; font-size: 16px; }
+    .sidebar-spacer { flex: 1; }
+    .season-card { margin: 12px 2px; padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: linear-gradient(140deg, var(--green-soft), var(--surface)); }
+    .season-label { color: var(--muted); font-size: 10px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
+    .season-value { margin-top: 6px; font-size: 14px; font-weight: 700; }
+    .season-sub { margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .profile { display: flex; align-items: center; gap: 10px; padding: 13px 8px 0; border-top: 1px solid var(--line); }
+    .avatar { display: grid; flex: 0 0 33px; width: 33px; height: 33px; place-items: center; border-radius: 50%; background: #e9caa4; color: #61452a; font-size: 11px; font-weight: 750; }
+    .profile strong, .profile small { display: block; }
+    .profile strong { font-size: 12px; }
+    .profile small { margin-top: 3px; color: var(--muted); font-size: 11px; }
+
+    .main { width: min(100%, 1440px); margin: 0 auto; padding: 29px clamp(20px, 4vw, 54px) 48px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
+    .breadcrumbs { color: var(--muted); font-size: 12px; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .round-indicator { display: flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--muted); font-size: 12px; }
+    .round-indicator strong { color: var(--ink); }
+    .button { display: inline-flex; min-height: 37px; align-items: center; justify-content: center; gap: 7px; padding: 0 13px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); cursor: pointer; font-size: 12px; font-weight: 650; transition: transform .16s, background .16s, border-color .16s; }
+    .button:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--green) 38%, var(--line)); }
+    .button-primary { border-color: var(--green); background: var(--green); color: #fff; }
+    .button-primary:hover { border-color: var(--green-dark); background: var(--green-dark); }
+    .button-danger { border-color: color-mix(in srgb, var(--red) 35%, var(--line)); color: var(--red); }
+    .button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .button:focus-visible, .nav-button:focus-visible, .company-switcher:focus-visible { outline: 3px solid color-mix(in srgb, var(--green) 28%, transparent); outline-offset: 2px; }
+
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+    .page-kicker { margin: 0 0 7px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 4vw, 32px); font-weight: 670; letter-spacing: -.045em; }
+    .page-description { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .heading-actions { display: flex; align-items: center; gap: 8px; }
+
+    .alert { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--amber) 22%, var(--line)); border-radius: 10px; background: var(--amber-soft); color: var(--amber); font-size: 12px; line-height: 1.5; }
+    .alert-icon { font-size: 15px; }
+    .metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 17px; }
+    .metric { min-width: 0; padding: 15px 16px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; color: var(--muted); font-size: 11px; }
+    .metric-icon { color: var(--green); font-size: 16px; }
+    .metric-value { overflow: hidden; margin-top: 13px; font-size: clamp(17px, 2vw, 23px); font-weight: 700; letter-spacing: -.04em; text-overflow: ellipsis; white-space: nowrap; }
+    .metric-change { margin-top: 7px; color: var(--muted); font-size: 10px; }
+    .metric-change.positive { color: var(--green); }
+    .metric-change.negative { color: var(--red); }
+
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, .95fr); gap: 16px; align-items: start; }
+    .panel { min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+    .panel + .panel { margin-top: 16px; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+    .panel-title { margin: 0; font-size: 13px; font-weight: 700; }
+    .panel-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .panel-body { padding: 17px 18px; }
+    .chart-wrap { height: 208px; }
+    .chart-wrap svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-grid { stroke: var(--line); stroke-width: 1; }
+    .chart-area { fill: url(#chartFill); }
+    .chart-line { fill: none; stroke: var(--green); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-dot { fill: var(--surface); stroke: var(--green); stroke-width: 2; }
+    .chart-label { fill: var(--muted); font: 10px Inter, ui-sans-serif, system-ui, sans-serif; }
+    .chart-legend { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+    .decision-panel { overflow: hidden; }
+    .decision-intro { padding: 15px 17px 2px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .decision-form { display: grid; gap: 0; }
+    .decision-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 17px; border-top: 1px solid var(--line); }
+    .decision-copy strong, .decision-copy small { display: block; }
+    .decision-copy strong { font-size: 12px; }
+    .decision-copy small { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .decision-row select { width: 128px; height: 33px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; outline: none; background: var(--surface-soft); color: var(--ink); font-size: 11px; }
+    .decision-row select:focus, input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 14%, transparent); }
+    .decision-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 17px; border-top: 1px solid var(--line); background: var(--surface-soft); }
+    .decision-foot small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+
+    .simulation-bar { display: flex; align-items: center; gap: 10px; padding: 12px 17px; background: var(--surface-soft); }
+    .simulation-status { display: flex; flex: 1; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .status-dot.running { background: #49a36a; box-shadow: 0 0 0 4px color-mix(in srgb, #49a36a 15%, transparent); animation: pulse 1.6s ease infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, #49a36a 0%, transparent); } }
+    .day-clock { color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; font-weight: 700; }
+    .day-progress { height: 4px; background: var(--line); }
+    .day-progress > span { display: block; width: 0; height: 100%; background: var(--green); transition: width .25s linear; }
+    .day-controls { display: flex; align-items: center; gap: 8px; padding: 13px 17px 15px; }
+    .day-controls label { display: flex; flex: 1; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 11px; }
+    .day-controls input { width: 96px; height: 33px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; outline: none; background: var(--surface); color: var(--ink); font-size: 11px; }
+    .price-control { display: grid; gap: 8px; padding: 14px 17px; border-top: 1px solid var(--line); }
+    .price-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .price-heading strong { font-size: 12px; }
+    .price-heading output { color: var(--green); font-size: 17px; font-weight: 750; }
+    .price-control input[type="range"] { width: 100%; accent-color: var(--green); cursor: pointer; }
+    .price-range-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
+    .procurement { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; padding: 13px 17px; border-top: 1px solid var(--line); }
+    .procurement-copy { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .procurement-copy strong { font-size: 12px; }
+    .procurement-copy small { color: var(--muted); font-size: 10px; }
+    .procurement select { min-width: 0; height: 37px; padding: 0 9px; border: 1px solid var(--line); border-radius: 8px; outline: none; background: var(--surface-soft); color: var(--ink); font-size: 11px; }
+    .procurement .button { white-space: nowrap; }
+    .purchase-target { grid-column: 1 / -1; display: grid; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 650; }
+    .delivery-note { grid-column: 1 / -1; color: var(--muted); font-size: 10px; line-height: 1.4; }
+    .store-totals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; padding: 0 17px 14px; }
+    .store-total { padding: 9px 10px; border-radius: 8px; background: var(--surface-soft); }
+    .store-total small, .store-total strong { display: block; }
+    .store-total small { color: var(--muted); font-size: 10px; }
+    .store-total strong { margin-top: 4px; font-size: 13px; font-variant-numeric: tabular-nums; }
+
+    .locale-button { min-width: 46px; }
+    .location-layout { display: grid; grid-template-columns: minmax(210px, .85fr) minmax(0, 1fr); gap: 16px; align-items: center; }
+    .taiwan-map { width: 100%; max-height: 270px; }
+    .taiwan-shape { fill: var(--green-soft); stroke: var(--green); stroke-width: 3; stroke-linejoin: round; }
+    .map-label { fill: var(--muted); font: 10px Inter, ui-sans-serif, system-ui, sans-serif; }
+    .city-marker { cursor: pointer; }
+    .city-marker circle { fill: var(--surface); stroke: var(--green); stroke-width: 2; transition: r .16s, fill .16s; }
+    .city-marker:hover circle, .city-marker.selected circle { fill: var(--green); }
+    .city-marker.store-open:not(.selected) circle { fill: color-mix(in srgb, var(--green) 45%, var(--surface)); }
+    .city-marker.selected circle { stroke: var(--green-dark); stroke-width: 3; }
+    .city-marker text { fill: var(--ink); font: 10px Inter, ui-sans-serif, system-ui, sans-serif; font-weight: 650; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+    .location-controls { display: grid; gap: 12px; }
+    .location-controls label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 650; }
+    .location-controls select { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; outline: none; background: var(--surface-soft); color: var(--ink); font-size: 12px; }
+    .location-info { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .location-stat { padding: 10px; border-radius: 8px; background: var(--surface-soft); }
+    .location-stat small, .location-stat strong { display: block; }
+    .location-stat small { color: var(--muted); font-size: 10px; }
+    .location-stat strong { margin-top: 5px; font-size: 13px; }
+    .store-opening { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .map-note { color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .stock-visual { display: grid; gap: 13px; }
+    .store-stock-list { display: grid; gap: 18px; }
+    .store-stock { display: grid; gap: 13px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .store-stock:last-child { padding-bottom: 0; border-bottom: 0; }
+    .stock-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .stock-summary strong { font-size: 22px; letter-spacing: -.04em; }
+    .stock-summary span { color: var(--muted); font-size: 11px; }
+    .stock-capacity { height: 7px; overflow: hidden; border-radius: 99px; background: var(--line); }
+    .stock-capacity span { display: block; height: 100%; border-radius: inherit; background: var(--green); transition: width .25s; }
+    .stock-capacity.low span { background: var(--amber); }
+    .stock-shelves { display: grid; gap: 9px; padding: 4px 2px 0; }
+    .shelf-row { display: flex; min-height: 43px; align-items: flex-end; gap: 5px; padding: 0 9px 5px; border-bottom: 5px solid #b68b5c; border-radius: 2px 2px 5px 5px; background: linear-gradient(180deg, transparent 83%, color-mix(in srgb, #b68b5c 10%, transparent) 83%); }
+    .stock-box { display: grid; width: 26px; height: 27px; place-items: center; border: 1px solid color-mix(in srgb, var(--green) 25%, var(--line)); border-radius: 5px 5px 3px 3px; background: linear-gradient(145deg, var(--green-soft), color-mix(in srgb, var(--green) 16%, var(--surface))); color: var(--green-dark); font-size: 13px; transition: opacity .2s, transform .2s; }
+    .stock-box.empty { opacity: .2; transform: scaleY(.55); transform-origin: bottom; }
+    .stock-legend { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
+    .stock-legend .low { color: var(--amber); font-weight: 700; }
+    .stock-caption { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 11px; }
+    .location-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .location-actions .button { flex: 1; }
+
+    .team-list { display: grid; }
+    .team-member { display: flex; align-items: center; gap: 11px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .team-member:first-child { padding-top: 1px; }
+    .team-member:last-child { padding-bottom: 1px; border-bottom: 0; }
+    .member-avatar { display: grid; flex: 0 0 34px; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: var(--green-soft); color: var(--green-dark); font-size: 11px; font-weight: 750; }
+    .member-copy { flex: 1; min-width: 0; }
+    .member-copy strong, .member-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .member-copy strong { font-size: 12px; }
+    .member-copy small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .role-pill { padding: 4px 7px; border-radius: 6px; background: var(--surface-soft); color: var(--muted); font-size: 10px; }
+    .team-footer { margin-top: 13px; }
+
+    .activity-list { display: grid; }
+    .activity-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .activity-item:last-child { border-bottom: 0; }
+    .activity-mark { display: grid; flex: 0 0 25px; width: 25px; height: 25px; place-items: center; border-radius: 8px; background: var(--green-soft); color: var(--green); font-size: 12px; }
+    .activity-mark.warning { background: var(--amber-soft); color: var(--amber); }
+    .activity-copy { min-width: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .activity-copy strong { color: var(--ink); font-weight: 650; }
+    .activity-time { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+
+    .module-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .module-card { padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+    .module-card-icon { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 10px; background: var(--green-soft); color: var(--green); font-size: 17px; }
+    .module-card h2 { margin: 13px 0 5px; font-size: 14px; }
+    .module-card p { min-height: 34px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .module-stat { margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .module-stat small { display: block; color: var(--muted); font-size: 10px; }
+    .module-stat strong { display: block; margin-top: 4px; font-size: 17px; }
+    .module-tip { margin-top: 16px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .team-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .team-table { width: 100%; border-collapse: collapse; }
+    .team-table th { padding: 11px 12px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 650; text-align: left; text-transform: uppercase; letter-spacing: .06em; }
+    .team-table td { padding: 12px; border-bottom: 1px solid var(--line); font-size: 12px; }
+    .team-table tr:last-child td { border-bottom: 0; }
+    .table-person { display: flex; align-items: center; gap: 9px; }
+    .table-person .member-avatar { width: 30px; height: 30px; flex-basis: 30px; }
+    .remove-member { border: 0; background: transparent; color: var(--red); cursor: pointer; font-size: 11px; }
+    .team-add-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 9px; margin-top: 16px; padding: 14px; border: 1px dashed var(--line); border-radius: 10px; background: var(--surface-soft); }
+    .team-add-form input, .team-add-form select, .dialog-form input, .dialog-form select { min-width: 0; height: 37px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; outline: none; background: var(--surface); color: var(--ink); font-size: 12px; }
+
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th { padding: 10px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 650; text-align: left; text-transform: uppercase; }
+    .history-table td { padding: 11px 10px; border-bottom: 1px solid var(--line); font-size: 11px; }
+    .history-table tr:last-child td { border-bottom: 0; }
+    .status-positive { color: var(--green); }
+    .status-negative { color: var(--red); }
+    .empty-history { padding: 23px 10px; color: var(--muted); font-size: 12px; text-align: center; }
+    .run-history-list { display: grid; gap: 9px; }
+    .run-history-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+    .run-history-copy { min-width: 0; }
+    .run-history-copy strong, .run-history-copy small { display: block; }
+    .run-history-copy small { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .run-history-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .run-history-actions .button { min-height: 32px; padding: 0 9px; font-size: 10px; }
+    .run-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 12px; }
+    .operation-list { display: grid; gap: 0; }
+    .operation-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 11px; }
+    .operation-row:last-child { border-bottom: 0; }
+
+    dialog { width: min(420px, calc(100% - 32px)); padding: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 24px 80px rgb(0 0 0 / 22%); }
+    dialog::backdrop { background: rgb(18 24 19 / 45%); backdrop-filter: blur(2px); }
+    .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 17px 19px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0; font-size: 15px; }
+    .dialog-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .dialog-close { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 19px; }
+    .dialog-form { display: grid; gap: 13px; padding: 18px 19px; }
+    .dialog-form label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 650; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+
+    .toast { position: fixed; right: 22px; bottom: 20px; z-index: 5; max-width: min(360px, calc(100vw - 32px)); padding: 11px 15px; transform: translateY(12px); border-radius: 9px; background: #263d2e; color: white; box-shadow: var(--shadow); font-size: 12px; opacity: 0; pointer-events: none; transition: transform .2s, opacity .2s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1050px) {
+      .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .content-grid { grid-template-columns: minmax(0, 1fr); }
+      .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .layout { display: block; }
+      .sidebar { position: sticky; z-index: 4; top: 0; width: 100%; height: auto; padding: 9px 13px 7px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .brand { display: none; }
+      .company-switcher { display: none; }
+      .nav-label, .sidebar-spacer, .season-card, .profile { display: none; }
+      .nav { display: flex; justify-content: space-between; gap: 2px; }
+      .nav-button { flex: 1; min-height: 40px; justify-content: center; gap: 6px; padding: 0 5px; font-size: 11px; }
+      .nav-icon { width: auto; font-size: 14px; }
+      .main { padding: 20px 16px 35px; }
+      .topbar { margin-bottom: 23px; }
+    }
+    @media (max-width: 520px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .metric { padding: 12px; }
+      .page-heading { align-items: flex-start; flex-direction: column; }
+      .heading-actions { width: 100%; }
+      .heading-actions .button { flex: 1; }
+      .round-indicator { font-size: 10px; }
+      .module-grid { grid-template-columns: 1fr; }
+      .team-add-form { grid-template-columns: 1fr; }
+      .team-table th:nth-child(3), .team-table td:nth-child(3) { display: none; }
+      .decision-foot { align-items: flex-start; flex-direction: column; }
+      .decision-foot .button { width: 100%; }
+      .day-controls { align-items: stretch; flex-direction: column; }
+      .day-controls label { min-height: 34px; }
+      .day-controls .button { width: 100%; }
+      .location-layout { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: 8px; }
+      .location-controls select { font-size: 11px; }
+      .location-stat { padding: 8px; }
+      .taiwan-map { max-height: 240px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">F</div>
+        <div><div class="brand-name">Fieldwork</div><div class="brand-caption" id="brand-caption">Business Simulation Lab</div></div>
+      </div>
+      <button class="company-switcher" id="company-switcher" type="button" aria-label="Edit company">
+        <span class="company-icon" id="company-initial">H</span>
+        <span class="company-switcher-copy"><strong id="sidebar-company">Harbor &amp; Pine</strong><small id="sidebar-industry">Retail · Cohort A</small></span>
+        <span class="company-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="nav-label" id="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-button" type="button" data-view="overview" aria-current="page"><span class="nav-icon">⌂</span>Overview</button>
+        <button class="nav-button" type="button" data-view="departments"><span class="nav-icon">▦</span>Departments</button>
+        <button class="nav-button" type="button" data-view="team"><span class="nav-icon">♧</span>My team</button>
+        <button class="nav-button" type="button" data-view="reports"><span class="nav-icon">▤</span>Reports</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="season-card"><div class="season-label" id="sidebar-season-label">Simulation season</div><div class="season-value" id="sidebar-season">Retail day 1</div><div class="season-sub" id="sidebar-season-sub">Practice company · Private</div></div>
+      <div class="profile"><div class="avatar" id="owner-avatar">JM</div><div><strong id="owner-name">Jordan Morgan</strong><small id="profile-role">Company owner</small></div></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumbs"><span id="breadcrumb-root">Simulation workspace</span> <span aria-hidden="true">/</span> <strong id="breadcrumb-view">Overview</strong></div>
+        <div class="top-actions">
+          <div class="round-indicator"><span id="day-prefix">Day</span><strong id="round-indicator">01</strong><span id="day-suffix">of 30</span></div>
+          <button class="button locale-button" id="locale-toggle" type="button" aria-label="切換語言">中</button>
+          <button class="button" id="edit-company-top" type="button"><span aria-hidden="true">⚙</span> Company setup</button>
+        </div>
+      </header>
+      <div id="view-root" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <dialog id="company-dialog" aria-labelledby="company-dialog-title">
+    <div class="dialog-head">
+      <div><h2 id="company-dialog-title">Company setup</h2><p>Personalize your simulation workspace.</p></div>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button>
+    </div>
+    <form class="dialog-form" id="company-form">
+      <label>Company name<input id="company-name-input" name="companyName" maxlength="48" required></label>
+      <label>Industry
+        <select id="industry-input" name="industry">
+          <option>Retail</option><option>Consumer goods</option><option>Food &amp; beverage</option><option>Technology</option><option>Manufacturing</option>
+        </select>
+      </label>
+      <label>Company owner<input id="owner-name-input" name="ownerName" maxlength="48" required></label>
+      <div class="dialog-actions"><button class="button" type="button" data-close-dialog>Cancel</button><button class="button button-primary" type="submit">Save company</button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+      const STORAGE_KEY = "fieldwork-simulation-v1";
+      const UNIT_COST = 250;
+      const initialState = {
+        company: { name: "Harbor & Pine", industry: "Retail", owner: "Jordan Morgan" },
+        language: "en",
+        city: "taichung",
+        storeSize: "medium",
+        purchaseCity: "taichung",
+        stores: null,
+        economyVersion: 2,
+        day: 1,
+        isRunning: false,
+        dayDurationSeconds: 60,
+        dayStartedAt: null,
+        dayEndsAt: null,
+        lastTickAt: null,
+        pausedRemainingMs: 60000,
+        currentPrice: 450,
+        dailyRevenue: 0,
+        dailyCogs: 0,
+        dailyUnitsSold: 0,
+        dailyPurchaseCost: 0,
+        dailyPurchases: 0,
+        dailyStockoutSeconds: 0,
+        salesRemainder: 0,
+        team: [
+          { id: "owner", name: "Jordan Morgan", role: "General Manager" },
+          { id: "member-1", name: "Avery Chen", role: "Operations" },
+          { id: "member-2", name: "Sam Rivera", role: "Marketing" },
+          { id: "member-3", name: "Taylor Brooks", role: "Finance" }
+        ],
+        inventory: 120,
+        satisfaction: 74,
+        cash: 500000,
+        lastRevenue: 0,
+        lastProfit: 0,
+        history: [],
+        completedRuns: [],
+        runStatus: "ready",
+        runId: null,
+        runStartedAt: null,
+        runStartingCash: 500000,
+        operationLog: [],
+        activity: [
+          { icon: "✦", kind: "workReady", day: 1 },
+          { icon: "↗", kind: "storeReady", day: 1 }
+        ]
+      };
+      const viewRoot = document.querySelector("#view-root");
+      const toastElement = document.querySelector("#toast");
+      let state;
+      let language;
+      let currentView = "overview";
+      let toastTimer;
+      const cities = [
+        { id: "taipei", en: "Taipei", zh: "台北市", dailyRent: 4800, traffic: 1.28, purchaseChance: .82, x: 156, y: 40, dx: 12, dy: -7 },
+        { id: "taichung", en: "Taichung", zh: "台中市", dailyRent: 2900, traffic: 1.08, purchaseChance: .70, x: 125, y: 150, dx: -52, dy: -4 },
+        { id: "tainan", en: "Tainan", zh: "台南市", dailyRent: 1900, traffic: .94, purchaseChance: .58, x: 102, y: 246, dx: -42, dy: 17 },
+        { id: "kaohsiung", en: "Kaohsiung", zh: "高雄市", dailyRent: 2300, traffic: 1.02, purchaseChance: .66, x: 106, y: 278, dx: 12, dy: 14 },
+        { id: "hualien", en: "Hualien", zh: "花蓮縣", dailyRent: 1400, traffic: .76, purchaseChance: .42, x: 165, y: 183, dx: 12, dy: 4 }
+      ];
+      const storeSizes = [
+        { id: "small", en: "Small · 25 ping", zh: "小型 · 25 坪", capacity: 100, rentFactor: .68 },
+        { id: "medium", en: "Medium · 50 ping", zh: "中型 · 50 坪", capacity: 250, rentFactor: 1 },
+        { id: "large", en: "Large · 100 ping", zh: "大型 · 100 坪", capacity: 500, rentFactor: 1.72 }
+      ];
+      const translations = {
+        en: {
+          workspace: "Simulation workspace", overview: "Overview", departments: "Departments", team: "My team", reports: "Reports",
+          companySetup: "Company setup", companyDashboard: "Company dashboard", overviewDescription: "See how your business is performing and decide what to do next.",
+          businessFunctions: "Business functions", departmentsDescription: "A connected view of the teams driving your company forward.",
+          peopleRoles: "People & roles", teamDescription: "Build your leadership team and keep responsibilities clear.",
+          performance: "Performance & evidence", reportsDescription: "Review your decisions and the outcomes they create each day.",
+          goodMorning: "Good morning, {name}.", cash: "Cash balance", availableCash: "Available working capital",
+          todayRevenue: "Today's revenue", salesToday: "Sales today · {units} units", grossProfit: "Today's gross profit",
+          lessProductCost: "Revenue less product cost", inventory: "Inventory", units: "units", finishedGoods: "Finished goods on hand",
+          sentiment: "Customer sentiment", customersGood: "Customers are feeling good", needsAttention: "Needs attention",
+          revenuePerformance: "Revenue performance", revenueRecent: "A snapshot of your sales over recent days", revenue: "Revenue",
+          firstDayChart: "Complete your first day to see revenue", recentActivity: "Recent activity", companyActivity: "What's happening across your company",
+          leadershipTeam: "Leadership team", peopleOnTeam: "{count} people on your team", manage: "Manage",
+          retailDay: "Retail day {day}", daySubtitle: "Order stock by store, set your price, and run open locations",
+          storeOpen: "Simulation day running · open stores are selling", storeClosed: "Simulation paused · open stores sell when started",
+          dayLength: "Day length", seconds: "sec", pauseDay: "Ⅱ  Pause day", openStore: "▶  Start day",
+          sellingPrice: "Store selling price", competitive: "Competitive · NT$80", premium: "Premium · NT$1,200",
+          restock: "Restock inventory", perUnitCash: "NT${cost} per unit · Cash {cash}", buyStock: "＋ Buy stock",
+          soldToday: "Sold today", todaySales: "Today's sales", stockCapacity: "Store capacity",
+          selectCity: "Choose a city", chooseSize: "Store size", dailyRent: "Daily rent", footTraffic: "Foot traffic",
+          locationMap: "Store location · Taiwan", locationHint: "Choose a city, size, and whether to open the store. Only open stores sell and incur daily rent.",
+          mapNote: "Schematic map and simulated estimates. City purchase chances are also adjusted by price and customer sentiment.",
+          storeOpening: "Store setup", storeOpenAction: "Open store", storeCloseAction: "Close store", openStatus: "Open", closedStatus: "Closed",
+          selectStore: "Select store", storeRequired: "Open this store before purchasing inventory.", noStoresOpen: "No stores are open. Open a store to display inventory and start earning revenue.",
+          inventorySubtitle: "Live stock at open stores · Everyday essentials", delivery: "In transit", deliveryArrives: "Arrives on day {day}",
+          purchaseTarget: "Deliver to", stockAdded: "{count} units ordered for {store}. Arrival: day {day}.", deliveryReceived: "{count} units delivered to {store}.",
+          storeOpenedToast: "{city} store is now open.", storeClosedToast: "{city} store is now closed.",
+          orderPlaced: "Ordered {count} units for {store}; delivery arrives on day {day}.",
+          cityDemand: "Purchase chance",
+          storeResults: "Store-by-store results",
+          noPendingDelivery: "No deliveries in transit",
+          runStart: "Start new practice", runResume: "Resume day", runPause: "Ⅱ  Pause day", runEnd: "End this practice",
+          runHistory: "Practice history", noRunHistory: "Completed practices will be saved here for review and download.",
+          runNumber: "Practice {number}", runEnded: "Practice ended", runPaused: "Paused", runActive: "In progress", runReady: "Ready to begin",
+          viewRun: "View", downloadRun: "Download data", runDownload: "Download practice data", runEndedAt: "Ended {date}",
+          endedToast: "Practice ended and saved to history.", newRunToast: "A new practice has started.", confirmEnd: "End this practice now? The current day will be settled and saved.",
+          sessionDate: "Started", cashAtStart: "Starting cash", finalCash: "Final cash", totalCosts: "Total expenses", actionsRecorded: "Actions recorded",
+          operationHistory: "Player action history", noOperations: "No player actions recorded.",
+          opPracticeStarted: "Started practice with {cash} in cash.", opPaused: "Paused the practice.", opResumed: "Resumed the practice.",
+          opSimulationStarted: "Started the daily simulation.", opEnded: "Ended the practice with {cash} cash.",
+          opDaySettled: "Settled day {day}: revenue {revenue}, expenses {expenses}.", opPriceChanged: "Changed selling price to {price}.",
+          opStoreOpened: "Opened the {city} store.", opStoreClosed: "Closed the {city} store.",
+          opLocationChanged: "Changed {city} store size to {size}.", opOrder: "Ordered {quantity} units for {city} ({amount}); arrives day {day}.",
+          inventoryDisplay: "Store inventory", inventorySubtitle: "Live shelf levels · Everyday essentials",
+          stockRemaining: "{stock} / {capacity} units", shelfLabels: ["Top shelf", "Middle shelf", "Bottom shelf"],
+          lowStock: "Low stock", healthyStock: "Stock level healthy", noStock: "Out of stock · sales paused",
+          departmentsCardOperations: "Operations", operationsDescription: "Purchase stock and keep the store ready to serve customers.",
+          marketingSales: "Marketing & Sales", marketingDescription: "Choose a price and understand customer demand.",
+          finance: "Finance", financeDescription: "Track cash, revenue, rent, and profitability over time.",
+          people: "People", peopleDescription: "Build a cross-functional team for your company.",
+          strategy: "Strategy", strategyDescription: "Connect store decisions to business outcomes.",
+          learning: "Learning & Insights", learningDescription: "Review performance evidence after each day.",
+          inventoryOnHand: "Inventory on hand", customerSentiment: "Customer sentiment", availableCashStat: "Available cash",
+          teamMembers: "Team members", simulationDay: "Simulation day", daysCompleted: "Days completed",
+          businessConnected: "Business is connected.", connectedHint: "Selling price changes demand, city and store size shape rent and traffic, and purchases affect cash and inventory. Test a different location or store size and compare results.",
+          addTeam: "Add member", namePlaceholder: "Team member name", role: "Role", access: "Access", remove: "Remove",
+          companyOwner: "Company owner", teamMember: "Team member", owner: "Owner",
+          companyName: "Company name", industry: "Industry", companyOwnerField: "Company owner", saveCompany: "Save company", cancel: "Cancel",
+          companyDialogTitle: "Company setup", companyDialogDescription: "Personalize your simulation workspace.",
+          retail: "Retail", consumerGoods: "Consumer goods", food: "Food & beverage", technology: "Technology", manufacturing: "Manufacturing",
+          reportsChartSubtitle: "Your latest seven completed days", daysRecorded: "{count} days recorded",
+          dailyResults: "Daily results", dailyResultsSubtitle: "A record of store sales, rent, and inventory decisions",
+          day: "Day", grossProfitColumn: "Net profit", sold: "Sold", purchased: "Purchased", endingStock: "Ending stock",
+          dayClosed: "Day {day} closed: {units} units sold, {revenue} revenue, {profit} net profit.",
+          restocked: "Restocked {count} units for {amount}.", memberJoined: "{name} joined the team as {role}.", memberRemoved: "{name} was removed from the team.",
+          lowInventoryActivity: "The store ran out of stock. Restock before the next busy period.",
+          rentCharged: "Daily rent charged: {rent} across {count} open stores.",
+          noDays: "No days completed yet. Open the store from the overview dashboard to get started.",
+          stockWarning: "Inventory is running low. Restock soon to avoid missed sales.",
+          cashWarning: "Cash is running low. Review spending before opening the next day.",
+          companySaved: "Company details saved.", added: "{name} added to your team.", removed: "{name} removed from your team.",
+          notEnoughCash: "Not enough cash. You need {amount} to buy this stock.", invalidQuantity: "Choose a valid restock quantity.",
+          paused: "Store paused. Your day will resume where it left off.",
+          storeOpened: "Simulation started · {seconds}-second days.", seasonComplete: "This 30-day simulation season is complete.",
+          seasonTitle: "Season complete", seasonSubtitle: "You have completed all 30 simulation days.",
+          seasonDescription: "Review your results and reflect on how your decisions shaped the company.",
+          viewReports: "View reports →", inventoryLabels: ["Everyday goods", "Essentials", "Home & living"],
+          cohort: "Cohort A", storePrivate: "Practice company · Private", simulationSeason: "Simulation season",
+          storeReady: "Your store is stocked and ready to open.", workReady: "Your simulation workspace is ready.",
+          roleGM: "General Manager", roleOps: "Operations", roleMarketing: "Marketing", roleFinance: "Finance",
+          storeRented: "Store location: {city} · {size}", rentExpense: "Daily store rent: {rent} across {count} open stores.",
+          roundIndicator: "Day",           outOfStock: "No stock left to buy for this store size.", capacityReached: "Store is at capacity. Choose a smaller restock amount or a larger store.",
+          sizeTooSmall: "Current stock and incoming deliveries exceed that store's capacity.",
+          modalInfo: "Choose your retail location and storefront size in the Overview dashboard."
+        },
+        zh: {
+          workspace: "模擬工作區", overview: "營運總覽", departments: "部門", team: "我的團隊", reports: "營運報表",
+          companySetup: "公司設定", companyDashboard: "公司儀表板", overviewDescription: "查看零售門市營運狀況，做出下一步決策。",
+          businessFunctions: "營運部門", departmentsDescription: "掌握推動公司營運的各個團隊。",
+          peopleRoles: "人員與職責", teamDescription: "建立管理團隊，清楚分配職責。",
+          performance: "績效與學習", reportsDescription: "檢視每天的營運決策與成果。",
+          goodMorning: "早安，{name}。", cash: "現金餘額", availableCash: "可用營運資金",
+          todayRevenue: "今日營收", salesToday: "今日銷售 · {units} 件", grossProfit: "今日毛利",
+          lessProductCost: "營收扣除商品成本", inventory: "商品庫存", units: "件", finishedGoods: "門市現有商品",
+          sentiment: "顧客滿意度", customersGood: "顧客反應良好", needsAttention: "需要留意",
+          revenuePerformance: "營收表現", revenueRecent: "近期每日營收概況", revenue: "營收",
+          firstDayChart: "完成第一天營業後，就會顯示營收", recentActivity: "最新動態", companyActivity: "門市最新營運狀況",
+          leadershipTeam: "管理團隊", peopleOnTeam: "團隊共 {count} 人", manage: "管理",
+          retailDay: "零售第 {day} 天", daySubtitle: "依門市採購商品、設定售價，並開始每日營運",
+          storeOpen: "每日回合進行中 · 開設門市自動銷售", storeClosed: "每日回合尚未開始 · 啟動後開設中的門市自動銷售",
+          dayLength: "每日長度", seconds: "秒", pauseDay: "Ⅱ　暫停回合", openStore: "▶　開始本日回合",
+          sellingPrice: "門市售價", competitive: "平價競爭 · NT$80", premium: "高價策略 · NT$1,200",
+          restock: "採購補貨", perUnitCash: "每件 NT${cost} · 現金 {cash}", buyStock: "＋ 採購商品",
+          soldToday: "今日已售", todaySales: "今日營收", stockCapacity: "門市容量",
+          selectCity: "選擇城市", chooseSize: "店面大小", dailyRent: "每日租金", footTraffic: "人流指數",
+          locationMap: "門市位置 · 台灣", locationHint: "選擇城市、店面大小及是否開店。僅開設中的門市會銷售並計算每日租金。",
+          mapNote: "示意地圖；租金、人流及各城市購買機率為模擬估值，實際銷售機率也會受售價與顧客滿意度影響。",
+          storeOpening: "門市設定", storeOpenAction: "開設門市", storeCloseAction: "關閉門市", openStatus: "營業中", closedStatus: "未開設",
+          selectStore: "選擇門市", storeRequired: "請先開設此門市，再採購庫存。", noStoresOpen: "目前沒有開設中的門市。開店後才會顯示庫存並開始產生營收。",
+          inventorySubtitle: "僅顯示已開設門市的即時庫存 · 生活用品", delivery: "配送中", deliveryArrives: "第 {day} 天到貨",
+          purchaseTarget: "配送至", stockAdded: "已為「{store}」採購 {count} 件，預計第 {day} 天到貨。",
+          deliveryReceived: "「{store}」已收到 {count} 件商品。",
+          storeOpenedToast: "已開設{city}門市。", storeClosedToast: "已關閉{city}門市。",
+          orderPlaced: "已為「{store}」採購 {count} 件商品，預計第 {day} 天到貨。",
+          cityDemand: "顧客購買機率",
+          storeResults: "各門市營運成果",
+          noPendingDelivery: "目前沒有配送中的商品",
+          runStart: "開始新的營運練習", runResume: "繼續營運", runPause: "Ⅱ　暫停營運", runEnd: "結束本場練習",
+          runHistory: "歷次營運練習", noRunHistory: "已完成的練習會保存在這裡，供日後檢視與下載。",
+          runNumber: "練習 {number}", runEnded: "已結束", runPaused: "已暫停", runActive: "進行中", runReady: "準備開始",
+          viewRun: "檢視", downloadRun: "下載資料", runDownload: "下載本場資料", runEndedAt: "結束於 {date}",
+          endedToast: "本場練習已結束並存入紀錄。", newRunToast: "新的營運練習已開始。", confirmEnd: "確定現在結束本場練習？目前營業日將結算並保存。",
+          sessionDate: "開始時間", cashAtStart: "期初現金", finalCash: "期末現金", totalCosts: "總支出", actionsRecorded: "操作紀錄數",
+          operationHistory: "玩家操作紀錄", noOperations: "目前沒有操作紀錄。",
+          opPracticeStarted: "開始練習，期初現金 {cash}。", opPaused: "暫停營運練習。", opResumed: "繼續營運練習。",
+          opSimulationStarted: "開始每日營運回合。", opEnded: "結束練習，期末現金 {cash}。",
+          opDaySettled: "第 {day} 天結算：營收 {revenue}，支出 {expenses}。", opPriceChanged: "售價調整為 {price}。",
+          opStoreOpened: "開設{city}門市。", opStoreClosed: "關閉{city}門市。",
+          opLocationChanged: "{city}門市規模調整為{size}。", opOrder: "為{city}採購 {quantity} 件（{amount}），第 {day} 天到貨。",
+          inventoryDisplay: "門市庫存圖示", inventorySubtitle: "即時貨架存量 · 生活用品",
+          stockRemaining: "庫存 {stock} / {capacity} 件", shelfLabels: ["上層貨架", "中層貨架", "下層貨架"],
+          lowStock: "庫存偏低", healthyStock: "庫存充足", noStock: "商品售罄 · 暫停銷售",
+          departmentsCardOperations: "門市營運", operationsDescription: "採購補貨，確保門市商品供應充足。",
+          marketingSales: "行銷與銷售", marketingDescription: "調整售價，觀察價格對顧客需求的影響。",
+          finance: "財務", financeDescription: "追蹤現金、營收、租金與獲利變化。",
+          people: "人員管理", peopleDescription: "建立跨部門團隊，支援公司營運。",
+          strategy: "營運策略", strategyDescription: "了解門市決策如何影響整體營運成果。",
+          learning: "營運分析", learningDescription: "檢視每日營運數據與績效表現。",
+          inventoryOnHand: "目前商品庫存", customerSentiment: "顧客滿意度", availableCashStat: "可用現金",
+          teamMembers: "團隊人數", simulationDay: "目前天數", daysCompleted: "已完成天數",
+          businessConnected: "零售營運環環相扣。", connectedHint: "售價會影響需求，城市與店面大小決定租金和人流，採購則影響現金與庫存。試試不同的城市或店面規模，觀察營運差異。",
+          addTeam: "新增成員", namePlaceholder: "團隊成員姓名", role: "職務", access: "身分", remove: "移除",
+          companyOwner: "公司負責人", teamMember: "團隊成員", owner: "負責人",
+          companyName: "公司名稱", industry: "產業", companyOwnerField: "公司負責人", saveCompany: "儲存設定", cancel: "取消",
+          companyDialogTitle: "公司設定", companyDialogDescription: "自訂你的模擬公司資料。",
+          retail: "零售", consumerGoods: "民生消費", food: "食品與飲料", technology: "科技", manufacturing: "製造業",
+          reportsChartSubtitle: "最近七個營業日", daysRecorded: "已記錄 {count} 天",
+          dailyResults: "每日營運成果", dailyResultsSubtitle: "門市銷售、租金與庫存採購紀錄",
+          day: "第", grossProfitColumn: "每日淨利", sold: "銷售", purchased: "採購", endingStock: "期末庫存",
+          dayClosed: "第 {day} 天結束：售出 {units} 件，營收 {revenue}，淨利 {profit}。",
+          restocked: "補貨 {count} 件，花費 {amount}。", memberJoined: "{name} 加入團隊，負責{role}。", memberRemoved: "已將 {name} 從團隊移除。",
+          lowInventoryActivity: "門市商品售罄。下一個營業日開始前請記得補貨。",
+          rentCharged: "已扣除每日租金：{rent}（{count} 間營業門市）。",
+          noDays: "尚無營業紀錄。請回到營運總覽，開始第一天營業。",
+          stockWarning: "商品庫存偏低，請儘快補貨以免錯失銷售機會。",
+          cashWarning: "現金水位偏低，開始下一天前請留意支出。",
+          companySaved: "公司資料已儲存。", added: "已將 {name} 加入團隊。", removed: "已將 {name} 從團隊移除。",
+          notEnoughCash: "現金不足，採購此批商品需要 {amount}。", invalidQuantity: "請選擇有效的補貨數量。",
+          paused: "每日回合已暫停，可從剩餘時間繼續。",
+          storeOpened: "模擬開始 · 每日 {seconds} 秒。", seasonComplete: "30 天模擬期已結束。",
+          seasonTitle: "模擬期結束", seasonSubtitle: "已完成全部 30 天的模擬營運。",
+          seasonDescription: "檢視營運成果，回顧決策如何影響公司表現。",
+          viewReports: "查看報表 →", inventoryLabels: ["日常生活用品", "居家必需品", "居家與生活"],
+          cohort: "A 組", storePrivate: "練習公司 · 私人工作區", simulationSeason: "模擬進度",
+          storeReady: "門市商品已備妥，隨時可以開店。", workReady: "模擬工作區已就緒。",
+          roleGM: "總經理", roleOps: "營運", roleMarketing: "行銷", roleFinance: "財務",
+          storeRented: "門市位置：{city} · {size}", rentExpense: "已扣除每日租金：{rent}（{count} 間營業門市）。",
+          roundIndicator: "第",           outOfStock: "此店面容量不足，無法再補貨。", capacityReached: "門市庫存已滿，請減少採購數量或升級店面。",
+          sizeTooSmall: "目前庫存與配送中商品超過該店面容量。",
+          modalInfo: "請至營運總覽選擇門市城市與店面大小。"
+        }
+      };
+      state = loadState();
+      language = state.language === "zh" ? "zh" : "en";
+      let selectedRunId = null;
+
+      function t(key, values = {}) {
+        let phrase = translations[language][key] || translations.en[key] || key;
+        if (Array.isArray(phrase)) return phrase;
+        for (const [name, value] of Object.entries(values)) phrase = phrase.replaceAll(`{${name}}`, String(value));
+        return phrase;
+      }
+
+      function createFreshState() {
+        const fresh = structuredClone(initialState);
+        fresh.stores = cities.map(city => ({
+          city: city.id, isOpen: city.id === "taichung", size: city.id === "taichung" ? "medium" : "small",
+          inventory: city.id === "taichung" ? initialState.inventory : 0, pendingDeliveries: [],
+          dailyRevenue: 0, dailyCogs: 0, dailyUnitsSold: 0, dailyPurchases: 0, dailyPurchaseCost: 0,
+          dailyStockoutSeconds: 0, salesRemainder: 0
+        }));
+        return fresh;
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return createFreshState();
+          const data = JSON.parse(raw);
+          if (!data || !data.company || !Array.isArray(data.team) || !Array.isArray(data.history)) {
+            throw new Error("Saved simulation data has an invalid shape.");
+          }
+          const restored = {
+            ...structuredClone(initialState),
+            ...data,
+            company: { ...initialState.company, ...data.company },
+            language: data.language === "zh" ? "zh" : "en",
+            city: cities.some(city => city.id === data.city) ? data.city : initialState.city,
+            storeSize: storeSizes.some(size => size.id === data.storeSize) ? data.storeSize : initialState.storeSize,
+            economyVersion: 2,
+            dayDurationSeconds: Number.isFinite(data.dayDurationSeconds) ? Math.min(200, Math.max(10, Math.round(data.dayDurationSeconds))) : initialState.dayDurationSeconds,
+            currentPrice: Number.isFinite(data.currentPrice) ? data.currentPrice : initialState.currentPrice,
+            isRunning: data.isRunning === true && Number.isFinite(data.dayEndsAt) && Number.isFinite(data.lastTickAt),
+            dailyRevenue: Number.isFinite(data.dailyRevenue) ? data.dailyRevenue : 0,
+            dailyCogs: Number.isFinite(data.dailyCogs) ? data.dailyCogs : 0,
+            dailyUnitsSold: Number.isFinite(data.dailyUnitsSold) ? data.dailyUnitsSold : 0,
+            dailyPurchaseCost: Number.isFinite(data.dailyPurchaseCost) ? data.dailyPurchaseCost : 0,
+            dailyPurchases: Number.isFinite(data.dailyPurchases) ? data.dailyPurchases : 0,
+            dailyStockoutSeconds: Number.isFinite(data.dailyStockoutSeconds) ? data.dailyStockoutSeconds : 0,
+            salesRemainder: Number.isFinite(data.salesRemainder) ? data.salesRemainder : 0,
+            pausedRemainingMs: Number.isFinite(data.pausedRemainingMs) ? data.pausedRemainingMs : (data.dayDurationSeconds || 60) * 1000,
+            team: data.team.filter(member => member && typeof member.id === "string" && typeof member.name === "string" && typeof member.role === "string"),
+            history: data.history.filter(round => round && Number.isFinite(round.day) && Number.isFinite(round.revenue) && Number.isFinite(round.profit)),
+            completedRuns: Array.isArray(data.completedRuns) ? data.completedRuns.filter(run => run && typeof run.id === "string" && Array.isArray(run.history)) : [],
+            runId: typeof data.runId === "string" ? data.runId : null,
+            runStartedAt: Number.isFinite(data.runStartedAt) ? data.runStartedAt : null,
+            runStartingCash: Number.isFinite(data.runStartingCash) ? data.runStartingCash : 500000,
+            operationLog: Array.isArray(data.operationLog) ? data.operationLog : [],
+            activity: Array.isArray(data.activity) ? data.activity.slice(0, 12) : initialState.activity
+          };
+          restored.runStatus = ["ready", "running", "paused", "ended"].includes(data.runStatus)
+            ? data.runStatus
+            : restored.isRunning ? "running" : restored.day > 30 ? "ended" : restored.history.length ? "paused" : "ready";
+          const migrateLegacyCompletedRun = !["ready", "running", "paused", "ended"].includes(data.runStatus) && restored.day > 30 && restored.history.length > 0;
+          if (migrateLegacyCompletedRun) {
+            restored.completedRuns.unshift({
+              id: restored.runId || newRunId(),
+              number: restored.completedRuns.length + 1,
+              status: "ended",
+              startedAt: restored.runStartedAt || Date.now(),
+              endedAt: Date.now(),
+              dayReached: restored.day,
+              startingCash: restored.runStartingCash,
+              finalCash: restored.cash,
+              totalRevenue: restored.history.reduce((total, round) => total + round.revenue, 0),
+              totalExpenses: restored.history.reduce((total, round) => total + (round.rent || 0) + (round.purchaseCost || 0), 0),
+              company: structuredClone(restored.company),
+              settings: { dayDurationSeconds: restored.dayDurationSeconds, price: restored.currentPrice },
+              history: structuredClone(restored.history),
+              currentDay: null,
+              closingStores: [],
+              operations: structuredClone(restored.operationLog)
+            });
+            restored.runId = null;
+            restored.runStartedAt = null;
+            restored.runStatus = "ended";
+          }
+          if (!restored.runId && restored.runStatus !== "ready") {
+            if (restored.runStatus !== "ended") {
+              restored.runId = newRunId();
+              restored.runStartedAt = Date.now();
+            }
+          }
+          restored.stores = cities.map(city => {
+            const saved = Array.isArray(data.stores) ? data.stores.find(item => item && item.city === city.id) : null;
+            const legacyStore = !Array.isArray(data.stores) && city.id === restored.city;
+            return {
+              city: city.id,
+              isOpen: saved ? saved.isOpen === true : legacyStore,
+              size: storeSizes.some(size => size.id === (saved ? saved.size : legacyStore ? restored.storeSize : "small"))
+                ? (saved ? saved.size : legacyStore ? restored.storeSize : "small") : "small",
+              inventory: Number.isFinite(saved && saved.inventory) ? Math.max(0, saved.inventory) : legacyStore && Number.isFinite(data.inventory) ? Math.max(0, data.inventory) : 0,
+              pendingDeliveries: Array.isArray(saved && saved.pendingDeliveries) ? saved.pendingDeliveries.filter(order => Number.isInteger(order.quantity) && order.quantity > 0 && Number.isFinite(order.arrivesOn)) : [],
+              dailyRevenue: Number.isFinite(saved && saved.dailyRevenue) ? saved.dailyRevenue : legacyStore ? restored.dailyRevenue : 0,
+              dailyCogs: Number.isFinite(saved && saved.dailyCogs) ? saved.dailyCogs : legacyStore ? restored.dailyCogs : 0,
+              dailyUnitsSold: Number.isFinite(saved && saved.dailyUnitsSold) ? saved.dailyUnitsSold : legacyStore ? restored.dailyUnitsSold : 0,
+              dailyPurchases: Number.isFinite(saved && saved.dailyPurchases) ? saved.dailyPurchases : legacyStore ? restored.dailyPurchases : 0,
+              dailyPurchaseCost: Number.isFinite(saved && saved.dailyPurchaseCost) ? saved.dailyPurchaseCost : legacyStore ? restored.dailyPurchaseCost : 0,
+              dailyStockoutSeconds: Number.isFinite(saved && saved.dailyStockoutSeconds) ? saved.dailyStockoutSeconds : legacyStore ? restored.dailyStockoutSeconds : 0,
+              salesRemainder: Number.isFinite(saved && saved.salesRemainder) ? saved.salesRemainder : 0
+            };
+          });
+          if (migrateLegacyCompletedRun) restored.completedRuns[0].closingStores = structuredClone(restored.stores);
+          restored.purchaseCity = restored.stores.some(store => store.city === data.purchaseCity && store.isOpen)
+            ? data.purchaseCity : (restored.stores.find(store => store.isOpen) || {}).city || restored.city;
+          if (data.economyVersion !== 2) {
+            const convert = value => Number.isFinite(value) ? Math.round(value * 30) : value;
+            restored.cash = convert(restored.cash);
+            restored.currentPrice = convert(restored.currentPrice);
+            restored.lastRevenue = convert(restored.lastRevenue);
+            restored.lastProfit = convert(restored.lastProfit);
+            restored.dailyRevenue = convert(restored.dailyRevenue);
+            restored.dailyCogs = convert(restored.dailyCogs);
+            restored.dailyPurchaseCost = convert(restored.dailyPurchaseCost);
+            restored.stores.forEach(store => {
+              store.dailyRevenue = convert(store.dailyRevenue);
+              store.dailyCogs = convert(store.dailyCogs);
+              store.dailyPurchaseCost = convert(store.dailyPurchaseCost);
+            });
+            restored.history = restored.history.map(round => ({
+              ...round,
+              revenue: convert(round.revenue),
+              profit: convert(round.profit),
+              price: convert(round.price),
+              purchaseCost: convert(round.purchaseCost)
+            }));
+          }
+          restored.currentPrice = Math.min(1200, Math.max(80, restored.currentPrice));
+          return restored;
+        } catch (error) {
+          console.error("Could not load simulation data:", error);
+          return createFreshState();
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+          console.error("Could not save simulation data:", error);
+          showToast("Changes couldn't be saved in this browser.");
+        }
+      }
+
+      function recordOperation(action, details = {}) {
+        if (!state.runId) return;
+        state.operationLog.push({
+          at: new Date().toISOString(),
+          day: state.day,
+          action,
+          ...details
+        });
+      }
+
+      function newRunId() {
+        return globalThis.crypto && typeof globalThis.crypto.randomUUID === "function"
+          ? globalThis.crypto.randomUUID()
+          : `practice-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+      }
+
+      function beginNewRun() {
+        const preserved = {
+          company: state.company,
+          language: state.language,
+          team: state.team,
+          dayDurationSeconds: state.dayDurationSeconds,
+          currentPrice: state.currentPrice,
+          completedRuns: state.completedRuns,
+          stores: structuredClone(state.stores),
+          city: state.city,
+          storeSize: state.storeSize,
+          purchaseCity: state.purchaseCity
+        };
+        state = createFreshState();
+        Object.assign(state, preserved, {
+          runId: newRunId(),
+          runStartedAt: Date.now(),
+          runStartingCash: state.cash,
+          runStatus: "ready",
+          day: 1,
+          isRunning: false,
+          dayStartedAt: null,
+          dayEndsAt: null,
+          lastTickAt: null,
+          pausedRemainingMs: state.dayDurationSeconds * 1000,
+          dailyRevenue: 0,
+          dailyCogs: 0,
+          dailyUnitsSold: 0,
+          dailyPurchaseCost: 0,
+          dailyPurchases: 0,
+          dailyStockoutSeconds: 0,
+          salesRemainder: 0,
+          cash: 500000,
+          satisfaction: 74,
+          lastRevenue: 0,
+          lastProfit: 0,
+          history: [],
+          operationLog: [],
+          activity: []
+        });
+        state.stores = cities.map(city => ({
+          city: city.id, isOpen: city.id === "taichung", size: city.id === "taichung" ? "medium" : "small",
+          inventory: city.id === "taichung" ? initialState.inventory : 0, pendingDeliveries: [],
+          dailyRevenue: 0, dailyCogs: 0, dailyUnitsSold: 0, dailyPurchases: 0, dailyPurchaseCost: 0,
+          dailyStockoutSeconds: 0, salesRemainder: 0
+        }));
+        state.city = "taichung";
+        state.storeSize = "medium";
+        state.purchaseCity = "taichung";
+        recordOperation("practice_started", { cash: state.cash, city: "taichung", storeSize: "medium" });
+        state.activity.unshift({ icon: "✦", kind: "workReady", day: 1 });
+        saveState();
+        toggleSimulation();
+      }
+
+      function currentRunSnapshot(status = state.runStatus) {
+        return {
+          id: state.runId,
+          number: state.completedRuns.length + 1,
+          status,
+          startedAt: state.runStartedAt,
+          endedAt: status === "ended" ? Date.now() : null,
+          dayReached: state.day,
+          startingCash: state.runStartingCash,
+          finalCash: state.cash,
+          totalRevenue: state.history.reduce((total, round) => total + round.revenue, 0) + state.dailyRevenue,
+          totalExpenses: state.history.reduce((total, round) => total + (round.rent || 0) + (round.purchaseCost || 0), 0)
+            + (status === "ended" ? 0 : state.dailyPurchaseCost + dailyRent()),
+          company: structuredClone(state.company),
+          settings: { dayDurationSeconds: state.dayDurationSeconds, price: state.currentPrice },
+          history: structuredClone(state.history),
+          currentDay: status === "ended" ? null : {
+            day: state.day,
+            revenue: state.dailyRevenue,
+            cogs: state.dailyCogs,
+            purchases: state.dailyPurchases,
+            purchaseCost: state.dailyPurchaseCost,
+            rent: status === "ended" ? 0 : dailyRent(),
+            stores: openStores().map(store => ({
+              city: store.city, revenue: store.dailyRevenue, unitsSold: store.dailyUnitsSold,
+              inventory: store.inventory, purchases: store.dailyPurchases, purchaseCost: store.dailyPurchaseCost,
+              rent: storeRent(store), pendingDeliveries: structuredClone(store.pendingDeliveries)
+            }))
+          },
+          closingStores: structuredClone(state.stores),
+          operations: structuredClone(state.operationLog)
+        };
+      }
+
+      function finishRun() {
+        if (!state.runId || state.runStatus === "ended" || state.runStatus === "ready") return;
+        const now = Date.now();
+        if (state.isRunning) updateSimulation(now);
+        if (state.runStatus === "ended") return;
+        if (state.runStatus === "running" || state.runStatus === "paused") {
+          if (state.isRunning) {
+            const ticks = Math.floor(Math.max(0, now - state.lastTickAt) / 1000);
+            if (ticks > 0) addSales(ticks);
+          }
+          state.isRunning = false;
+          state.dayStartedAt = null;
+          state.dayEndsAt = null;
+          state.lastTickAt = null;
+          state.pausedRemainingMs = 0;
+          closeDay(false);
+        }
+        archiveCurrentRun();
+      }
+
+      function archiveCurrentRun() {
+        if (!state.runId || state.runStatus === "ended") return;
+        recordOperation("practice_ended", { cash: state.cash, day: state.day });
+        state.runStatus = "ended";
+        state.completedRuns.unshift(currentRunSnapshot("ended"));
+        state.activity.unshift({ icon: "■", kind: "runEnded", day: state.day });
+        state.activity = state.activity.slice(0, 12);
+        saveState();
+        render();
+        showToast(t("endedToast"));
+      }
+
+      function exportRun(run) {
+        if (!run) return;
+        const payload = {
+          format: "fieldwork-practice-v1",
+          exportedAt: new Date().toISOString(),
+          practice: run,
+          financialData: {
+            dailyResults: run.history,
+            finalCash: run.finalCash,
+            totalRevenue: run.totalRevenue,
+            totalExpenses: run.totalExpenses,
+            closingStores: run.closingStores,
+            currentDay: run.currentDay
+          },
+          userOperations: run.operations
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `fieldwork-practice-${run.id}.json`;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function visibleRunHistory() {
+        const current = state.runId && state.runStatus !== "ended" ? currentRunSnapshot() : null;
+        const runs = [...state.completedRuns];
+        if (current) runs.unshift(current);
+        return runs;
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        }[char]));
+      }
+
+      function money(amount, compact) {
+        if (compact && Math.abs(amount) >= 100000) {
+          const value = (amount / 1000).toFixed(amount % 10000 === 0 ? 0 : 1);
+          return language === "zh" ? `NT$${value}k` : `NT$${value}k`;
+        }
+        return new Intl.NumberFormat(language === "zh" ? "zh-TW" : "en-US", {
+          style: "currency", currency: "TWD", maximumFractionDigits: 0
+        }).format(amount);
+      }
+
+      function cityById(id = state.city) {
+        return cities.find(city => city.id === id) || cities[1];
+      }
+
+      function sizeById(id = state.storeSize) {
+        return storeSizes.find(size => size.id === id) || storeSizes[1];
+      }
+
+      function storeByCity(id = state.city) {
+        return state.stores.find(store => store.city === id);
+      }
+
+      function openStores() {
+        return state.stores.filter(store => store.isOpen);
+      }
+
+      function totalInventory() {
+        return openStores().reduce((total, store) => total + store.inventory, 0);
+      }
+
+      function storeRent(store) {
+        return Math.round(cityById(store.city).dailyRent * sizeById(store.size).rentFactor);
+      }
+
+      function pendingForStore(store) {
+        return store.pendingDeliveries.reduce((total, order) => total + order.quantity, 0);
+      }
+
+      function earliestArrival(store) {
+        return store.pendingDeliveries.length
+          ? Math.min(...store.pendingDeliveries.map(order => order.arrivesOn))
+          : 0;
+      }
+
+      function dailyRent() {
+        return openStores().reduce((total, store) => total + storeRent(store), 0);
+      }
+
+      function cityName(city) {
+        return city[language];
+      }
+
+      function industryName(industry) {
+        const industryKeys = {
+          Retail: "retail", "Consumer goods": "consumerGoods", "Food & beverage": "food",
+          Technology: "technology", Manufacturing: "manufacturing"
+        };
+        return industryKeys[industry] ? t(industryKeys[industry]) : industry;
+      }
+
+      function roleName(role) {
+        if (language === "en") return role;
+        const roleKeys = {
+          "General Manager": "roleGM", Operations: "roleOps", Marketing: "roleMarketing", Finance: "roleFinance",
+          "Human Resources": "people", "Supply Chain": "roleOps", Strategy: "strategy"
+        };
+        return roleKeys[role] ? t(roleKeys[role]) : role;
+      }
+
+      function initials(name) {
+        return String(name).trim().split(/\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
+      }
+
+      function showToast(message) {
+        toastElement.textContent = message;
+        toastElement.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastElement.classList.remove("show"), 2600);
+      }
+
+      function updateChrome() {
+        document.documentElement.lang = language === "zh" ? "zh-Hant" : "en";
+        document.querySelector("#sidebar-company").textContent = state.company.name;
+        document.querySelector("#sidebar-industry").textContent = `${industryName(state.company.industry)} · ${t("cohort")}`;
+        document.querySelector("#company-initial").textContent = initials(state.company.name).slice(0, 1) || "F";
+        document.querySelector("#owner-name").textContent = state.company.owner;
+        document.querySelector("#owner-avatar").textContent = initials(state.company.owner);
+        document.querySelector("#round-indicator").textContent = String(state.day).padStart(2, "0");
+        document.querySelector("#day-prefix").textContent = language === "zh" ? "第" : "Day";
+        document.querySelector("#day-suffix").textContent = language === "zh" ? "天 / 30 天" : "of 30";
+        document.querySelector("#sidebar-season").textContent = state.day > 30
+          ? t("seasonComplete")
+          : t("retailDay", { day: state.day });
+        document.querySelector("#sidebar-season-label").textContent = t("simulationSeason");
+        document.querySelector("#sidebar-season-sub").textContent = t("storePrivate");
+        document.querySelector("#nav-label").textContent = t("workspace");
+        document.querySelector("#breadcrumb-root").textContent = t("workspace");
+        document.querySelector("#breadcrumb-view").textContent = t(currentView);
+        document.querySelector("#locale-toggle").textContent = language === "en" ? "中" : "EN";
+        document.querySelector("#locale-toggle").setAttribute("aria-label", language === "en" ? "Switch to Traditional Chinese" : "切換為英文");
+        const companyButton = document.querySelector("#edit-company-top");
+        companyButton.innerHTML = `<span aria-hidden="true">⚙</span>${t("companySetup")}`;
+        document.querySelectorAll(".nav-button").forEach(button => {
+          if (button.dataset.view === currentView) button.setAttribute("aria-current", "page");
+          else button.removeAttribute("aria-current");
+          button.lastChild.textContent = t(button.dataset.view);
+        });
+        document.querySelector("#brand-caption").textContent = language === "zh" ? "商業模擬實驗室" : "Business Simulation Lab";
+        document.querySelector("#profile-role").textContent = language === "zh" ? "公司負責人" : "Company owner";
+        document.querySelector("#company-initial").setAttribute("aria-label", `${state.company.name} ${t("companySetup")}`);
+        document.title = `Fieldwork — ${language === "zh" ? "零售商業模擬" : "Retail Business Simulation"}`;
+        localizeCompanyDialog();
+      }
+
+      function localizeCompanyDialog() {
+        const dialog = document.querySelector("#company-dialog");
+        dialog.querySelector("#company-dialog-title").textContent = t("companyDialogTitle");
+        dialog.querySelector(".dialog-head p").textContent = t("companyDialogDescription");
+        const labels = dialog.querySelectorAll(".dialog-form label");
+        labels[0].firstChild.textContent = t("companyName");
+        labels[1].firstChild.textContent = t("industry");
+        labels[2].firstChild.textContent = t("companyOwnerField");
+        dialog.querySelector(".dialog-close").setAttribute("aria-label", t("cancel"));
+        dialog.querySelector(".dialog-actions [data-close-dialog]").textContent = t("cancel");
+        dialog.querySelector('[type="submit"]').textContent = t("saveCompany");
+        const options = dialog.querySelector("#industry-input").options;
+        const industryKeys = ["retail", "consumerGoods", "food", "technology", "manufacturing"];
+        [...options].forEach((option, index) => { option.textContent = t(industryKeys[index]); });
+      }
+
+      const pageInfo = {
+        overview: { title: "overview", kicker: "companyDashboard", description: "overviewDescription" },
+        departments: { title: "departments", kicker: "businessFunctions", description: "departmentsDescription" },
+        team: { title: "team", kicker: "peopleRoles", description: "teamDescription" },
+        reports: { title: "reports", kicker: "performance", description: "reportsDescription" }
+      };
+
+      function render() {
+        updateChrome();
+        const info = pageInfo[currentView];
+        const heading = `<section class="page-heading"><div><p class="page-kicker">${t(info.kicker)}</p><h1>${currentView === "overview" ? t("goodMorning", { name: escapeHtml(state.company.owner.split(" ")[0]) }) : t(info.title)}</h1><p class="page-description">${t(info.description)}</p></div></section>`;
+        if (currentView === "overview") viewRoot.innerHTML = heading + renderOverview();
+        if (currentView === "departments") viewRoot.innerHTML = heading + renderDepartments();
+        if (currentView === "team") viewRoot.innerHTML = heading + renderTeam();
+        if (currentView === "reports") viewRoot.innerHTML = heading + renderReports();
+        bindViewEvents();
+      }
+
+      function renderAlerts() {
+        const alerts = [];
+        if (state.cash < 2500) alerts.push(t("cashWarning"));
+        if (openStores().some(store => store.inventory < 35)) alerts.push(t("stockWarning"));
+        if (!alerts.length) return "";
+        return alerts.map(message => `<div class="alert"><span class="alert-icon" aria-hidden="true">⚠</span><span>${message}</span></div>`).join("");
+      }
+
+      function renderMetrics() {
+        const liveProfit = state.dailyRevenue - state.dailyCogs;
+        const profitClass = liveProfit > 0 ? "positive" : liveProfit < 0 ? "negative" : "";
+        return `<div class="metrics">
+          <article class="metric"><div class="metric-top"><span>${t("cash")}</span><span class="metric-icon">$</span></div><div class="metric-value" id="live-cash">${money(state.cash, true)}</div><div class="metric-change">${t("availableCash")}</div></article>
+          <article class="metric"><div class="metric-top"><span>${t("todayRevenue")}</span><span class="metric-icon">↗</span></div><div class="metric-value" id="live-revenue">${money(state.dailyRevenue, true)}</div><div class="metric-change" id="live-sales-caption">${t("salesToday", { units: state.dailyUnitsSold })}</div></article>
+          <article class="metric"><div class="metric-top"><span>${t("grossProfit")}</span><span class="metric-icon">⌁</span></div><div class="metric-value" id="live-profit">${money(liveProfit, true)}</div><div class="metric-change ${profitClass}">${t("lessProductCost")}</div></article>
+          ${openStores().length ? `<article class="metric"><div class="metric-top"><span>${t("inventory")}</span><span class="metric-icon">▣</span></div><div class="metric-value" id="live-inventory">${totalInventory().toLocaleString()} <span style="font-size:12px;font-weight:500;letter-spacing:0">${t("units")}</span></div><div class="metric-change">${t("finishedGoods")}</div></article>` : ""}
+          <article class="metric"><div class="metric-top"><span>${t("sentiment")}</span><span class="metric-icon">♡</span></div><div class="metric-value">${state.satisfaction}<span style="font-size:13px;font-weight:500">/100</span></div><div class="metric-change">${state.satisfaction >= 70 ? t("customersGood") : t("needsAttention")}</div></article>
+        </div>`;
+      }
+
+      function chartMarkup(history = state.history) {
+        const entries = history.slice(-7);
+        if (!entries.length) {
+          return `<div class="chart-wrap"><svg viewBox="0 0 360 210" role="img" aria-label="Revenue trend will appear after the first round">
+            <line class="chart-grid" x1="36" y1="42" x2="342" y2="42"></line><line class="chart-grid" x1="36" y1="86" x2="342" y2="86"></line><line class="chart-grid" x1="36" y1="130" x2="342" y2="130"></line><line class="chart-grid" x1="36" y1="176" x2="342" y2="176"></line>
+            <text class="chart-label" x="189" y="106" text-anchor="middle">${t("firstDayChart")}</text>
+          </svg></div>`;
+        }
+        const values = entries.map(round => round.revenue);
+        const min = Math.min(...values, 0);
+        const max = Math.max(...values, 1);
+        const range = Math.max(max - min, 1);
+        const points = values.map((value, index) => {
+          const x = values.length === 1 ? 330 : 38 + (index * 292) / (values.length - 1);
+          const y = 174 - ((value - min) / range) * 132;
+          return { x, y };
+        });
+        const line = points.map(point => `${point.x},${point.y}`).join(" ");
+        const area = `${points[0].x},184 ${line} ${points[points.length - 1].x},184`;
+        const labels = points.map((point, index) => `<text class="chart-label" x="${point.x}" y="202" text-anchor="middle">Day ${entries[index].day}</text>`).join("");
+        const dots = points.map(point => `<circle class="chart-dot" cx="${point.x}" cy="${point.y}" r="4"></circle>`).join("");
+        return `<div class="chart-wrap"><svg viewBox="0 0 360 210" role="img" aria-label="${language === "zh" ? `最近 ${values.length} 天營收趨勢` : `Revenue trend over the last ${values.length} days`}">
+          <defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity=".18"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0"/></linearGradient></defs>
+          <line class="chart-grid" x1="36" y1="42" x2="342" y2="42"></line><line class="chart-grid" x1="36" y1="86" x2="342" y2="86"></line><line class="chart-grid" x1="36" y1="130" x2="342" y2="130"></line><line class="chart-grid" x1="36" y1="176" x2="342" y2="176"></line>
+          <polygon class="chart-area" points="${area}"></polygon><polyline class="chart-line" points="${line}"></polyline>${dots}${labels}
+        </svg></div>`;
+      }
+
+      function decisionForm() {
+        const availableStores = openStores();
+        const preferredStore = storeByCity(state.purchaseCity || state.city);
+        const selectedStore = preferredStore && preferredStore.isOpen ? preferredStore : availableStores[0];
+        const restockCapacity = selectedStore
+          ? sizeById(selectedStore.size).capacity - selectedStore.inventory - pendingForStore(selectedStore)
+          : 0;
+        return `<div class="simulation-bar">
+            <div class="simulation-status"><span class="status-dot ${state.isRunning ? "running" : ""}" id="simulation-dot"></span><span id="simulation-status">${state.isRunning ? t("storeOpen") : t("storeClosed")}</span></div>
+            <span class="day-clock" id="day-clock">${formatClock(state.isRunning ? Math.max(0, state.dayEndsAt - Date.now()) : (state.pausedRemainingMs || state.dayDurationSeconds * 1000))}</span>
+          </div>
+          <div class="day-progress" role="progressbar" aria-label="${language === "zh" ? "每日營業進度" : "Day progress"}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="day-progress-fill"></span></div>
+          <div class="day-controls">
+            <label for="day-duration">${t("dayLength")}
+              <input id="day-duration" type="number" min="10" max="200" step="1" value="${state.dayDurationSeconds}" aria-label="Simulation day length in seconds" ${state.isRunning ? "disabled" : ""}>
+              <span>${t("seconds")}</span>
+            </label>
+            <button class="button ${state.isRunning ? "" : "button-primary"}" type="button" data-action="${state.runId ? "toggle-simulation" : "new-run"}">${state.isRunning ? t("runPause") : state.runStatus === "paused" ? t("runResume") : t("runStart")}</button>
+            ${state.runId && state.runStatus !== "ended" ? `<button class="button button-danger" type="button" data-action="end-run">${t("runEnd")}</button>` : ""}
+          </div>
+          <div class="price-control">
+            <div class="price-heading"><strong>${t("sellingPrice")}</strong><output id="price-output">${money(state.currentPrice)}</output></div>
+            <input id="selling-price" type="range" min="80" max="1200" step="10" value="${state.currentPrice}" aria-label="${t("sellingPrice")}">
+            <div class="price-range-labels"><span>${t("competitive")}</span><span>${t("premium")}</span></div>
+          </div>
+          <div class="procurement">
+            <div class="procurement-copy"><strong>${t("restock")}</strong><small>${t("perUnitCash", { cost: UNIT_COST, cash: money(state.cash, true) })}</small></div>
+            <label class="purchase-target">${t("purchaseTarget")}<select id="purchase-store" aria-label="${t("purchaseTarget")}" ${availableStores.length ? "" : "disabled"}>
+              ${availableStores.map(store => `<option value="${store.city}" ${selectedStore && store.city === selectedStore.city ? "selected" : ""}>${cityName(cityById(store.city))}</option>`).join("")}
+            </select></label>
+            <select id="purchase-quantity" aria-label="Purchase quantity" ${selectedStore ? "" : "disabled"}>
+              ${[10, 25, 50, 100].map(quantity => `<option value="${quantity}" ${quantity > restockCapacity ? "disabled" : ""}>${quantity} ${t("units")} · ${money(quantity * UNIT_COST)}</option>`).join("")}
+            </select>
+            <button class="button" type="button" data-action="purchase" ${selectedStore && restockCapacity >= 10 ? "" : "disabled"}>${t("buyStock")}</button>
+            <small class="delivery-note" id="delivery-note">${selectedStore && pendingForStore(selectedStore) ? `${t("delivery")}: ${pendingForStore(selectedStore).toLocaleString()} ${t("units")} · ${t("deliveryArrives", { day: earliestArrival(selectedStore) })}` : selectedStore ? t("noPendingDelivery") : t("noStoresOpen")}</small>
+          </div>
+          <div class="store-totals">
+            <div class="store-total"><small>${t("soldToday")}</small><strong id="today-units">${state.dailyUnitsSold} ${t("units")}</strong></div>
+            <div class="store-total"><small>${t("todaySales")}</small><strong id="today-revenue">${money(state.dailyRevenue, true)}</strong></div>
+          </div>`;
+      }
+
+      function renderLocationPanel() {
+        const selectedCity = cityById();
+        const selectedStore = storeByCity();
+        const selectedSize = sizeById(selectedStore.size);
+        const markers = cities.map(city => {
+          const selected = city.id === state.city;
+          const store = storeByCity(city.id);
+          const label = cityName(city);
+          return `<g class="city-marker ${selected ? "selected" : ""} ${store.isOpen ? "store-open" : ""}" data-city="${city.id}" tabindex="0" role="button" aria-label="${language === "zh" ? "選擇" : "Choose"} ${label} · ${store.isOpen ? t("openStatus") : t("closedStatus")}" aria-pressed="${selected}">
+            <circle cx="${city.x}" cy="${city.y}" r="${selected ? 7 : 5}"></circle>
+            <text x="${city.x + city.dx}" y="${city.y + city.dy}">${label}</text>
+          </g>`;
+        }).join("");
+        return `<section class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">${t("locationMap")}</h2><p class="panel-subtitle">${t("locationHint")}</p></div></div>
+          <div class="panel-body"><div class="location-layout">
+            <svg class="taiwan-map" viewBox="0 0 230 380" role="img" aria-label="${language === "zh" ? "台灣門市選址地圖" : "Taiwan store location map"}">
+              <path class="taiwan-shape" d="M142 12 C158 19 168 30 170 45 L178 60 171 78 179 95 168 116 166 137 151 158 151 178 140 199 134 222 119 243 116 265 101 287 98 310 83 331 75 354 61 368 50 356 54 338 62 318 64 298 74 278 75 255 86 236 84 216 96 197 94 177 105 158 105 137 116 119 115 98 128 79 126 60 137 43 132 27 Z"/>
+              <path d="M178 309c9-3 15 2 14 8-2 7-11 10-17 5-4-4-2-10 3-13Z" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/>
+              ${markers}
+            </svg>
+            <div class="location-controls">
+              <label>${t("selectCity")}<select id="city-select" aria-label="${t("selectCity")}">${cities.map(city => `<option value="${city.id}" ${city.id === state.city ? "selected" : ""}>${cityName(city)}</option>`).join("")}</select></label>
+              <label>${t("chooseSize")}<select id="store-size-select" aria-label="${t("chooseSize")}" ${state.isRunning ? "disabled" : ""}>${storeSizes.map(size => `<option value="${size.id}" ${size.id === selectedStore.size ? "selected" : ""} ${size.capacity < selectedStore.inventory + pendingForStore(selectedStore) ? "disabled" : ""}>${size[language]}</option>`).join("")}</select></label>
+              <div class="store-opening"><span class="role-pill">${selectedStore.isOpen ? t("openStatus") : t("closedStatus")}</span><button class="button ${selectedStore.isOpen ? "" : "button-primary"}" type="button" data-action="toggle-store" ${state.isRunning ? "disabled" : ""}>${selectedStore.isOpen ? t("storeCloseAction") : t("storeOpenAction")}</button></div>
+              <div class="location-info">
+                <div class="location-stat"><small>${t("dailyRent")}</small><strong>${money(selectedStore.isOpen ? storeRent(selectedStore) : 0)} / ${language === "zh" ? "天" : "day"}</strong></div>
+                <div class="location-stat"><small>${t("footTraffic")}</small><strong>×${selectedCity.traffic.toFixed(2)}</strong></div>
+                <div class="location-stat"><small>${t("stockCapacity")}</small><strong>${selectedSize.capacity} ${t("units")}</strong></div>
+                ${selectedStore.isOpen ? `<div class="location-stat"><small>${t("inventoryOnHand")}</small><strong id="location-inventory">${selectedStore.inventory} ${t("units")}</strong></div>` : `<div class="location-stat"><small>${t("storeOpening")}</small><strong>${t("closedStatus")}</strong></div>`}
+                <div class="location-stat"><small>${t("cityDemand")}</small><strong>${Math.round(selectedCity.purchaseChance * 100)}% / ${language === "zh" ? "秒" : "sec"}</strong></div>
+              </div>
+            </div>
+          </div><p class="map-note">${t("mapNote")}</p></div>
+        </section>`;
+      }
+
+      function renderInventoryPanel() {
+        const stores = openStores();
+        if (!stores.length) return `<section class="panel"><div class="panel-head"><div><h2 class="panel-title">${t("inventoryDisplay")}</h2><p class="panel-subtitle">${t("inventorySubtitle")}</p></div></div><div class="panel-body"><p class="empty-history">${t("noStoresOpen")}</p></div></section>`;
+        const cards = stores.map(store => {
+          const capacity = sizeById(store.size).capacity;
+          const fill = Math.min(100, store.inventory / capacity * 100);
+          const filledBoxes = store.inventory <= 0 ? 0 : Math.min(18, Math.ceil(fill / 100 * 18));
+          const boxes = Array.from({ length: 18 }, (_, index) => `<span class="stock-box ${index >= filledBoxes ? "empty" : ""}" aria-hidden="true">▦</span>`);
+          const rows = [boxes.slice(0, 6), boxes.slice(6, 12), boxes.slice(12, 18)].map((row, index) => `<div class="shelf-row" aria-label="${t("shelfLabels")[index]}">${row.join("")}</div>`).join("");
+          const status = store.inventory === 0 ? t("noStock") : fill < 25 ? t("lowStock") : t("healthyStock");
+          return `<article class="store-stock" data-store-city="${store.city}">
+            <div class="stock-summary"><strong data-store-inventory>${store.inventory} ${t("units")}</strong><span>${t("stockRemaining", { stock: store.inventory, capacity })}</span></div>
+            <div class="stock-capacity ${fill < 25 ? "low" : ""}" role="img"><span style="width:${fill}%"></span></div>
+            <div class="stock-shelves" role="img" aria-label="${t("inventoryDisplay")} · ${store.inventory} ${t("units")}">${rows}</div>
+            <div class="stock-legend"><span>${t("lowStock")}</span><span class="${store.inventory === 0 || fill < 25 ? "low" : ""}">${status}</span><span>${t("healthyStock")}</span></div>
+            <div class="stock-caption"><span>${t("stockCapacity")}: ${capacity} ${t("units")}</span><span>${cityName(cityById(store.city))} · ${sizeById(store.size)[language]}</span></div>
+            ${pendingForStore(store) ? `<div class="delivery-note">${t("delivery")}: ${pendingForStore(store)} ${t("units")} · ${t("deliveryArrives", { day: earliestArrival(store) })}</div>` : ""}
+          </article>`;
+        }).join("");
+        return `<section class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">${t("inventoryDisplay")}</h2><p class="panel-subtitle">${t("inventorySubtitle")}</p></div><span class="role-pill">${t("inventoryLabels")[Math.min(2, Math.floor((state.day - 1) / 10))]}</span></div>
+          <div class="panel-body store-stock-list">
+            ${cards}
+          </div>
+        </section>`;
+      }
+
+      function renderDecisionPanel() {
+        if (state.runStatus === "ended" || state.day > 30) {
+          return `<section class="panel decision-panel"><div class="panel-head"><div><h2 class="panel-title">${t("seasonTitle")}</h2><p class="panel-subtitle">${t("seasonSubtitle")}</p></div></div><div class="panel-body"><p class="page-description">${t("seasonDescription")}</p><button class="button" type="button" data-view-link="reports">${t("viewReports")}</button> <button class="button button-primary" type="button" data-action="new-run">${t("runStart")}</button></div></section>`;
+        }
+        return `<section class="panel decision-panel"><div class="panel-head"><div><h2 class="panel-title">${t("retailDay", { day: state.day })}</h2><p class="panel-subtitle">${t("daySubtitle")}</p></div></div>${decisionForm()}</section>`;
+      }
+
+      function renderOverview() {
+        return `${renderAlerts()}${renderMetrics()}<div class="content-grid">
+          <div><section class="panel"><div class="panel-head"><div><h2 class="panel-title">${t("revenuePerformance")}</h2><p class="panel-subtitle">${t("revenueRecent")}</p></div><div class="chart-legend"><span class="legend-dot"></span>${t("revenue")}</div></div><div class="panel-body">${chartMarkup()}</div></section>
+          ${renderLocationPanel()}
+          ${renderInventoryPanel()}
+          <section class="panel"><div class="panel-head"><div><h2 class="panel-title">${t("recentActivity")}</h2><p class="panel-subtitle">${t("companyActivity")}</p></div></div><div class="panel-body"><div class="activity-list">${renderActivity()}</div></div></section></div>
+          <div>${renderDecisionPanel()}
+          <section class="panel"><div class="panel-head"><div><h2 class="panel-title">${t("leadershipTeam")}</h2><p class="panel-subtitle">${t("peopleOnTeam", { count: state.team.length })}</p></div><button class="button" type="button" data-view-link="team">${t("manage")}</button></div><div class="panel-body"><div class="team-list">${renderMemberCards()}</div></div></section></div>
+        </div>`;
+      }
+
+      function renderActivity() {
+        if (!state.activity.length) return `<div class="empty-history">${t("companyActivity")}</div>`;
+        return state.activity.slice(0, 4).map(item => `<div class="activity-item"><span class="activity-mark ${item.warning ? "warning" : ""}">${escapeHtml(item.icon || "•")}</span><div class="activity-copy">${escapeHtml(activityMessage(item))}<span class="activity-time">${t("day")} ${item.day}</span></div></div>`).join("");
+      }
+
+      function activityMessage(item) {
+        if (item.kind === "dayClosed") return t("dayClosed", {
+          day: item.day, units: item.units, revenue: money(item.revenue), profit: money(item.profit)
+        });
+        if (item.kind === "rentCharged") return t("rentExpense", { rent: money(item.rent), count: item.count });
+        if (item.kind === "restocked") return t("restocked", { count: item.count, amount: money(item.amount) });
+        if (item.kind === "orderPlaced") return t("orderPlaced", { count: item.count, store: cityName(cityById(item.city)), day: item.arrivesOn });
+        if (item.kind === "deliveryReceived") return t("deliveryReceived", { count: item.count, store: cityName(cityById(item.city)) });
+        if (item.kind === "memberJoined") return t("memberJoined", { name: item.name, role: roleName(item.role) });
+        if (item.kind === "memberRemoved") return t("memberRemoved", { name: item.name });
+        if (item.kind === "lowInventoryActivity") return t("lowInventoryActivity");
+        if (item.kind) return t(item.kind);
+        return item.text || "";
+      }
+
+      function operationDescription(item) {
+        const city = item.city ? cityName(cityById(item.city)) : "";
+        const descriptions = {
+          practice_started: () => t("opPracticeStarted", { cash: money(item.cash || 0) }),
+          simulation_started: () => t("opSimulationStarted"),
+          practice_paused: () => t("opPaused"),
+          practice_resumed: () => t("opResumed"),
+          practice_ended: () => t("opEnded", { cash: money(item.cash || 0) }),
+          day_settled: () => t("opDaySettled", { day: item.day, revenue: money(item.revenue || 0), expenses: money(item.expenses || 0) }),
+          price_changed: () => t("opPriceChanged", { price: money(item.price || 0) }),
+          store_opened: () => t("opStoreOpened", { city }),
+          store_closed: () => t("opStoreClosed", { city }),
+          location_changed: () => t("opLocationChanged", { city, size: sizeById(item.size)[language] }),
+          inventory_ordered: () => t("opOrder", { city, quantity: item.quantity, amount: money(item.totalCost || 0), day: item.arrivesOn })
+        };
+        return descriptions[item.action] ? descriptions[item.action]() : item.action;
+      }
+
+      function renderMemberCards() {
+        return state.team.slice(0, 4).map(member => `<div class="team-member"><div class="member-avatar">${escapeHtml(initials(member.name))}</div><div class="member-copy"><strong>${escapeHtml(member.name)}</strong><small>${escapeHtml(roleName(member.role))}</small></div><span class="role-pill">${member.id === "owner" ? t("owner") : t("teamMember")}</span></div>`).join("");
+      }
+
+      function renderDepartments() {
+        const cards = [
+          { icon: "▣", name: t("departmentsCardOperations"), text: t("operationsDescription"), stat: t("inventoryOnHand"), value: `${totalInventory()} ${t("units")}` },
+          { icon: "↗", name: t("marketingSales"), text: t("marketingDescription"), stat: t("customerSentiment"), value: `${state.satisfaction} / 100` },
+          { icon: "$", name: t("finance"), text: t("financeDescription"), stat: t("availableCashStat"), value: money(state.cash, true) },
+          { icon: "♧", name: t("people"), text: t("peopleDescription"), stat: t("teamMembers"), value: `${state.team.length}` },
+          { icon: "⌁", name: t("strategy"), text: t("strategyDescription"), stat: t("simulationDay"), value: `${state.day} / 30` },
+          { icon: "▤", name: t("learning"), text: t("learningDescription"), stat: t("daysCompleted"), value: `${state.history.length}` }
+        ];
+        return `<div class="module-grid">${cards.map(card => `<article class="module-card"><div class="module-card-icon">${card.icon}</div><h2>${card.name}</h2><p>${card.text}</p><div class="module-stat"><small>${card.stat}</small><strong>${card.value}</strong></div></article>`).join("")}</div>
+          <div class="module-tip"><strong>${t("businessConnected")}</strong> ${t("connectedHint")}</div>`;
+      }
+
+      function renderTeam() {
+        const members = state.team.map(member => `<tr><td><div class="table-person"><span class="member-avatar">${escapeHtml(initials(member.name))}</span><span><strong>${escapeHtml(member.name)}</strong></span></div></td><td>${escapeHtml(roleName(member.role))}</td><td>${member.id === "owner" ? t("companyOwner") : t("teamMember")}</td><td>${member.id === "owner" ? `<span class="role-pill">${t("owner")}</span>` : `<button class="remove-member" type="button" data-remove-member="${escapeHtml(member.id)}" aria-label="${t("remove")} ${escapeHtml(member.name)}">${t("remove")}</button>`}</td></tr>`).join("");
+        return `<section class="panel"><div class="panel-head"><div><h2 class="panel-title">${t("leadershipTeam")}</h2><p class="panel-subtitle">${t("teamDescription")}</p></div><span class="role-pill">${t("peopleOnTeam", { count: state.team.length })}</span></div><div class="panel-body"><div class="team-toolbar"><span class="page-description">${t("teamDescription")}</span></div><div style="overflow-x:auto"><table class="team-table"><thead><tr><th>${t("team")}</th><th>${t("role")}</th><th>${t("access")}</th><th></th></tr></thead><tbody>${members || `<tr><td colspan="4" class="empty-history">${t("teamDescription")}</td></tr>`}</tbody></table></div>
+          <form class="team-add-form" id="team-add-form"><input name="name" maxlength="48" required placeholder="${t("namePlaceholder")}" aria-label="${t("namePlaceholder")}"><select name="role" aria-label="${t("role")}"><option value="Operations">${t("roleOps")}</option><option value="Marketing">${t("roleMarketing")}</option><option value="Finance">${t("roleFinance")}</option><option value="Human Resources">${t("people")}</option><option value="Supply Chain">${t("roleOps")}</option><option value="Strategy">${t("strategy")}</option></select><button class="button button-primary" type="submit">＋ ${t("addTeam")}</button></form></div></section>
+          <div class="module-tip">${t("modalInfo")}</div>`;
+      }
+
+      function renderReports() {
+        const runs = visibleRunHistory();
+        const selectedRun = runs.find(run => run.id === selectedRunId) || runs[0] || null;
+        const history = selectedRun ? selectedRun.history : state.history;
+        const runHistory = runs.length
+          ? `<div class="run-history-list">${runs.map((run, index) => {
+            const date = run.startedAt ? new Date(run.startedAt).toLocaleString(language === "zh" ? "zh-TW" : "en-US") : "—";
+            const status = run.status === "ended" ? t("runEnded") : run.status === "running" ? t("runActive") : t("runPaused");
+            const isCurrent = run.id === state.runId && run.status !== "ended";
+            return `<article class="run-history-item"><div class="run-history-copy"><strong>${t("runNumber", { number: run.number || runs.length - index })} · ${status}</strong><small>${t("sessionDate")}: ${escapeHtml(date)} · ${t("daysRecorded", { count: run.history.length })} · ${money(run.totalRevenue || 0)}</small></div><div class="run-history-actions"><button class="button" type="button" data-select-run="${escapeHtml(run.id)}">${t("viewRun")}</button>${isCurrent ? "" : `<button class="button" type="button" data-download-run="${escapeHtml(run.id)}">${t("downloadRun")}</button>`}</div></article>`;
+          }).join("")}</div>`
+          : `<div class="empty-history">${t("noRunHistory")}</div>`;
+        if (!selectedRun) return `<section class="panel"><div class="panel-head"><div><h2 class="panel-title">${t("runHistory")}</h2></div></div><div class="panel-body">${runHistory}</div></section>`;
+        const rows = history.slice().reverse().map(day => `<tr><td>${t("day")} ${day.day}</td><td>${money(day.revenue)}</td><td class="${day.profit >= 0 ? "status-positive" : "status-negative"}">${money(day.profit)}</td><td>${day.unitsSold === undefined ? "—" : `${day.unitsSold} ${t("units")}`}</td><td>${day.purchases === undefined ? "—" : `${day.purchases} ${t("units")}`}</td><td>${day.inventory === undefined ? "—" : `${day.inventory} ${t("units")}`}</td><td>${money(day.rent || 0)}</td></tr>`).join("");
+        const storeRows = history.slice().reverse().flatMap(day => (Array.isArray(day.stores) ? day.stores : []).map(store =>
+          `<tr><td>${t("day")} ${day.day}</td><td>${cityName(cityById(store.city))}</td><td>${money(store.revenue)}</td><td class="${store.profit >= 0 ? "status-positive" : "status-negative"}">${money(store.profit)}</td><td>${store.unitsSold === undefined ? "—" : `${store.unitsSold} ${t("units")}`}</td><td>${store.purchases === undefined ? "—" : `${store.purchases} ${t("units")}`}</td><td>${store.inventory === undefined ? "—" : `${store.inventory} ${t("units")}`}</td><td>${money(store.rent)}</td></tr>`
+        )).join("");
+        const operations = Array.isArray(selectedRun.operations) ? selectedRun.operations.slice().reverse() : [];
+        const operationRows = operations.map(item => {
+          const label = operationDescription(item);
+          const when = item.at ? new Date(item.at).toLocaleString(language === "zh" ? "zh-TW" : "en-US") : "";
+          return `<div class="operation-row"><span>${escapeHtml(label)}</span><small>${escapeHtml(when)} · ${t("day")} ${item.day}</small></div>`;
+        }).join("");
+        const endedAt = selectedRun.endedAt ? new Date(selectedRun.endedAt).toLocaleString(language === "zh" ? "zh-TW" : "en-US") : "";
+        return `<section class="panel"><div class="panel-head"><div><h2 class="panel-title">${t("runHistory")}</h2><p class="panel-subtitle">${t("noRunHistory")}</p></div></div><div class="panel-body">${runHistory}</div></section>
+          <section class="panel" style="margin-top:16px"><div class="panel-head"><div><h2 class="panel-title">${t("runNumber", { number: selectedRun.number || 1 })}</h2><p class="panel-subtitle">${selectedRun.status === "ended" ? t("runEndedAt", { date: endedAt }) : t("runActive")}</p></div>${selectedRun.status === "ended" ? `<button class="button button-primary" type="button" data-download-run="${escapeHtml(selectedRun.id)}">${t("runDownload")}</button>` : ""}</div><div class="panel-body">
+          <div class="run-summary"><div class="location-stat"><small>${t("cashAtStart")}</small><strong>${money(selectedRun.startingCash || 0)}</strong></div><div class="location-stat"><small>${t("finalCash")}</small><strong>${money(selectedRun.finalCash || 0)}</strong></div><div class="location-stat"><small>${t("revenue")}</small><strong>${money(selectedRun.totalRevenue || 0)}</strong></div><div class="location-stat"><small>${t("totalCosts")}</small><strong>${money(selectedRun.totalExpenses || 0)}</strong></div><div class="location-stat"><small>${t("actionsRecorded")}</small><strong>${operations.length}</strong></div></div>${chartMarkup(history)}</div></section>
+          <section class="panel" style="margin-top:16px"><div class="panel-head"><div><h2 class="panel-title">${t("dailyResults")}</h2><p class="panel-subtitle">${t("dailyResultsSubtitle")}</p></div><span class="role-pill">${t("daysRecorded", { count: history.length })}</span></div><div class="panel-body" style="overflow-x:auto">${history.length ? `<table class="history-table"><thead><tr><th>${t("day")}</th><th>${t("revenue")}</th><th>${t("grossProfitColumn")}</th><th>${t("sold")}</th><th>${t("purchased")}</th><th>${t("endingStock")}</th><th>${t("dailyRent")}</th></tr></thead><tbody>${rows}</tbody></table>` : `<div class="empty-history">${t("noDays")}</div>`}</div></section>
+          ${storeRows ? `<section class="panel" style="margin-top:16px"><div class="panel-head"><div><h2 class="panel-title">${t("storeResults")}</h2></div></div><div class="panel-body" style="overflow-x:auto"><table class="history-table"><thead><tr><th>${t("day")}</th><th>${t("selectCity")}</th><th>${t("revenue")}</th><th>${t("grossProfitColumn")}</th><th>${t("sold")}</th><th>${t("purchased")}</th><th>${t("endingStock")}</th><th>${t("dailyRent")}</th></tr></thead><tbody>${storeRows}</tbody></table></div></section>` : ""}
+          <section class="panel" style="margin-top:16px"><div class="panel-head"><div><h2 class="panel-title">${t("operationHistory")}</h2></div></div><div class="panel-body">${operationRows ? `<div class="operation-list">${operationRows}</div>` : `<div class="empty-history">${t("noOperations")}</div>`}</div></section>`;
+      }
+
+      function bindViewEvents() {
+        viewRoot.querySelectorAll("[data-action='toggle-simulation']").forEach(button => button.addEventListener("click", toggleSimulation));
+        viewRoot.querySelectorAll("[data-action='new-run']").forEach(button => button.addEventListener("click", beginNewRun));
+        viewRoot.querySelectorAll("[data-action='end-run']").forEach(button => button.addEventListener("click", () => {
+          if (window.confirm(t("confirmEnd"))) finishRun();
+        }));
+        viewRoot.querySelectorAll("[data-action='toggle-store']").forEach(button => button.addEventListener("click", toggleStore));
+        viewRoot.querySelectorAll("[data-action='purchase']").forEach(button => button.addEventListener("click", purchaseInventory));
+        viewRoot.querySelectorAll("[data-view-link]").forEach(button => button.addEventListener("click", () => setView(button.dataset.viewLink)));
+        const durationInput = viewRoot.querySelector("#day-duration");
+        if (durationInput) durationInput.addEventListener("change", () => {
+          state.dayDurationSeconds = Math.min(200, Math.max(10, Math.round(Number(durationInput.value) || 10)));
+          durationInput.value = String(state.dayDurationSeconds);
+          state.pausedRemainingMs = state.dayDurationSeconds * 1000;
+          saveState();
+          updateLiveDisplay(Date.now());
+        });
+        const priceInput = viewRoot.querySelector("#selling-price");
+        if (priceInput) priceInput.addEventListener("input", () => {
+          state.currentPrice = Math.min(1200, Math.max(80, Number(priceInput.value)));
+          const output = viewRoot.querySelector("#price-output");
+          if (output) output.value = money(state.currentPrice);
+          saveState();
+        });
+        if (priceInput) priceInput.addEventListener("change", () => {
+          recordOperation("price_changed", { price: state.currentPrice });
+          saveState();
+        });
+        const citySelect = viewRoot.querySelector("#city-select");
+        if (citySelect) citySelect.addEventListener("change", () => changeLocation(citySelect.value, storeByCity(citySelect.value).size));
+        const sizeSelect = viewRoot.querySelector("#store-size-select");
+        if (sizeSelect) sizeSelect.addEventListener("change", () => changeLocation(state.city, sizeSelect.value));
+        const purchaseStore = viewRoot.querySelector("#purchase-store");
+        if (purchaseStore) purchaseStore.addEventListener("change", () => {
+          state.purchaseCity = purchaseStore.value;
+          saveState();
+          render();
+        });
+        viewRoot.querySelectorAll(".city-marker").forEach(marker => {
+          marker.addEventListener("click", () => changeLocation(marker.dataset.city, storeByCity(marker.dataset.city).size));
+          marker.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              changeLocation(marker.dataset.city, storeByCity(marker.dataset.city).size);
+            }
+          });
+        });
+        const addForm = viewRoot.querySelector("#team-add-form");
+        if (addForm) addForm.addEventListener("submit", event => {
+          event.preventDefault();
+          const data = new FormData(addForm);
+          const name = String(data.get("name") || "").trim();
+          const role = String(data.get("role") || "Operations");
+          if (!name) return;
+          state.team.push({ id: `member-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`, name, role });
+          state.activity.unshift({ icon: "♧", kind: "memberJoined", name, role, day: state.day });
+          state.activity = state.activity.slice(0, 12);
+          saveState();
+          render();
+          showToast(t("added", { name }));
+        });
+        viewRoot.querySelectorAll("[data-remove-member]").forEach(button => button.addEventListener("click", () => {
+          const member = state.team.find(person => person.id === button.dataset.removeMember);
+          if (!member) return;
+          state.team = state.team.filter(person => person.id !== member.id);
+          state.activity.unshift({ icon: "♧", kind: "memberRemoved", name: member.name, day: state.day });
+          saveState();
+          render();
+          showToast(t("removed", { name: member.name }));
+        }));
+        viewRoot.querySelectorAll("[data-select-run]").forEach(button => button.addEventListener("click", () => {
+          selectedRunId = button.dataset.selectRun;
+          render();
+        }));
+        viewRoot.querySelectorAll("[data-download-run]").forEach(button => button.addEventListener("click", () => {
+          const run = state.completedRuns.find(item => item.id === button.dataset.downloadRun);
+          if (run) exportRun(run);
+        }));
+      }
+
+      function changeLocation(city, size) {
+        if (!cities.some(item => item.id === city)) return;
+        const selected = storeByCity(city);
+        const nextSize = size || selected.size;
+        if (!storeSizes.some(item => item.id === nextSize)) return;
+        if (sizeById(nextSize).capacity < selected.inventory + pendingForStore(selected)) {
+          showToast(t("sizeTooSmall"));
+          render();
+          return;
+        }
+        const previousCity = state.city;
+        const previousSize = selected.size;
+        state.city = city;
+        state.storeSize = nextSize;
+        if (selected.isOpen) state.purchaseCity = city;
+        selected.size = nextSize;
+        if (previousCity !== city || previousSize !== nextSize) {
+          recordOperation("location_changed", { city, size: nextSize });
+        }
+        saveState();
+        render();
+        if (previousCity !== city || previousSize !== nextSize) showToast(t("storeRented", { city: cityName(cityById()), size: sizeById(nextSize)[language] }));
+      }
+
+      function toggleStore() {
+        if (state.isRunning) return;
+        const store = storeByCity();
+        store.isOpen = !store.isOpen;
+        if (store.isOpen) state.purchaseCity = store.city;
+        else if (!openStores().some(item => item.city === state.purchaseCity)) {
+          state.purchaseCity = (openStores()[0] || {}).city || "";
+        }
+        state.storeSize = store.size;
+        recordOperation(store.isOpen ? "store_opened" : "store_closed", { city: store.city, size: store.size });
+        saveState();
+        render();
+        showToast(t(store.isOpen ? "storeOpenedToast" : "storeClosedToast", { city: cityName(cityById(store.city)) }));
+      }
+
+      function formatClock(milliseconds) {
+        const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+        return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(totalSeconds % 60).padStart(2, "0")}`;
+      }
+
+      function addSales(ticks) {
+        if (ticks <= 0) return;
+        const priceDemand = Math.max(0.2, 1.1 - (state.currentPrice - 450) * 0.0007);
+        const satisfactionFactor = 0.75 + state.satisfaction / 200;
+        for (const store of openStores()) {
+          const chance = Math.min(.98, cityById(store.city).purchaseChance * priceDemand * satisfactionFactor);
+          let units = 0;
+          let stockoutSeconds = 0;
+          for (let second = 0; second < ticks; second += 1) {
+            if (Math.random() < chance) {
+              if (store.inventory > 0) {
+                store.inventory -= 1;
+                units += 1;
+              } else {
+                stockoutSeconds += 1;
+              }
+            }
+          }
+          const revenue = units * state.currentPrice;
+          store.dailyUnitsSold += units;
+          store.dailyRevenue += revenue;
+          store.dailyCogs += units * UNIT_COST;
+          store.dailyStockoutSeconds += stockoutSeconds;
+          state.dailyUnitsSold += units;
+          state.dailyRevenue += revenue;
+          state.dailyCogs += units * UNIT_COST;
+          state.dailyStockoutSeconds += stockoutSeconds;
+          state.cash += revenue;
+        }
+        state.lastRevenue = state.dailyRevenue;
+        state.lastProfit = state.dailyRevenue - state.dailyCogs;
+      }
+
+      function deliverDueOrders(arrivingDay) {
+        for (const store of state.stores) {
+          const due = store.pendingDeliveries.filter(order => order.arrivesOn <= arrivingDay);
+          if (!due.length) continue;
+          const quantity = due.reduce((total, order) => total + order.quantity, 0);
+          store.inventory += quantity;
+          store.pendingDeliveries = store.pendingDeliveries.filter(order => order.arrivesOn > arrivingDay);
+          state.activity.unshift({ icon: "⇢", kind: "deliveryReceived", count: quantity, city: store.city, day: arrivingDay });
+        }
+      }
+
+      function closeDay(advance = true) {
+        const completedDay = state.day;
+        const profit = state.dailyRevenue - state.dailyCogs;
+        const rent = dailyRent();
+        const totalProfit = profit - rent;
+        const storeBreakdown = openStores().map(store => ({
+          city: store.city,
+          revenue: store.dailyRevenue,
+          profit: store.dailyRevenue - store.dailyCogs - storeRent(store),
+          unitsSold: store.dailyUnitsSold,
+          purchases: store.dailyPurchases,
+          purchaseCost: store.dailyPurchaseCost,
+          inventory: store.inventory,
+          rent: storeRent(store)
+        }));
+        state.lastRevenue = state.dailyRevenue;
+        state.lastProfit = totalProfit;
+        if (openStores().length) {
+          const satisfactionChange = state.dailyStockoutSeconds > 0
+            ? -Math.min(5, Math.max(1, Math.ceil(state.dailyStockoutSeconds / state.dayDurationSeconds * 5)))
+            : (state.currentPrice <= 450 ? 2 : -1);
+          state.satisfaction = Math.min(98, Math.max(35, state.satisfaction + satisfactionChange));
+        }
+        state.history.push({
+          day: completedDay,
+          revenue: state.dailyRevenue,
+          profit: totalProfit,
+          grossProfit: profit,
+          rent,
+          unitsSold: state.dailyUnitsSold,
+          inventory: totalInventory(),
+          purchases: state.dailyPurchases,
+          purchaseCost: state.dailyPurchaseCost,
+          price: state.currentPrice,
+          stores: storeBreakdown
+        });
+        state.cash -= rent;
+        state.activity.unshift({
+          icon: profit >= 0 ? "↗" : "⚠",
+          kind: "dayClosed",
+          day: completedDay,
+          units: state.dailyUnitsSold,
+          revenue: state.dailyRevenue,
+          profit: totalProfit,
+          warning: totalProfit < 0
+        });
+        if (rent > 0) state.activity.unshift({ icon: "⌂", kind: "rentCharged", day: completedDay, rent, count: openStores().length });
+        if (openStores().some(store => store.inventory === 0)) state.activity.unshift({ icon: "▣", kind: "lowInventoryActivity", day: completedDay, warning: true });
+        state.activity = state.activity.slice(0, 12);
+        recordOperation("day_settled", { day: completedDay, revenue: state.dailyRevenue, expenses: state.dailyPurchaseCost + rent, rent, endingCash: state.cash });
+        if (!advance) return;
+        state.day += 1;
+        deliverDueOrders(state.day);
+        state.dailyRevenue = 0;
+        state.dailyCogs = 0;
+        state.dailyUnitsSold = 0;
+        state.dailyPurchaseCost = 0;
+        state.dailyPurchases = 0;
+        state.dailyStockoutSeconds = 0;
+        state.salesRemainder = 0;
+        state.stores.forEach(store => {
+          store.dailyRevenue = 0;
+          store.dailyCogs = 0;
+          store.dailyUnitsSold = 0;
+          store.dailyPurchases = 0;
+          store.dailyPurchaseCost = 0;
+          store.dailyStockoutSeconds = 0;
+          store.salesRemainder = 0;
+        });
+        if (state.day > 30) {
+          state.isRunning = false;
+          state.dayStartedAt = null;
+          state.dayEndsAt = null;
+          state.lastTickAt = null;
+          state.pausedRemainingMs = 0;
+          archiveCurrentRun();
+        }
+      }
+
+      function updateSimulation(now = Date.now()) {
+        if (!state.isRunning) return false;
+        let changed = false;
+        let daysClosed = 0;
+        while (state.isRunning && state.dayEndsAt <= now) {
+          const deadline = state.dayEndsAt;
+          const ticks = Math.floor(Math.max(0, deadline - state.lastTickAt) / 1000);
+          addSales(ticks);
+          closeDay();
+          daysClosed += 1;
+          changed = true;
+          if (state.isRunning) {
+            state.dayStartedAt = deadline;
+            state.dayEndsAt = deadline + state.dayDurationSeconds * 1000;
+            state.lastTickAt = deadline;
+            state.pausedRemainingMs = state.dayDurationSeconds * 1000;
+          }
+        }
+        if (state.isRunning) {
+          const ticks = Math.floor(Math.max(0, now - state.lastTickAt) / 1000);
+          if (ticks > 0) {
+            addSales(ticks);
+            state.lastTickAt += ticks * 1000;
+            changed = true;
+          }
+        }
+        if (changed) saveState();
+        return daysClosed > 0;
+      }
+
+      function updateLiveDisplay(now = Date.now()) {
+        const clock = viewRoot.querySelector("#day-clock");
+        if (!clock) return;
+        const remaining = state.isRunning
+          ? Math.max(0, state.dayEndsAt - now)
+          : (state.pausedRemainingMs || state.dayDurationSeconds * 1000);
+        clock.textContent = formatClock(remaining);
+        const progress = state.isRunning
+          ? Math.min(100, Math.max(0, ((state.dayDurationSeconds * 1000 - remaining) / (state.dayDurationSeconds * 1000)) * 100))
+          : 0;
+        const fill = viewRoot.querySelector("#day-progress-fill");
+        const progressBar = viewRoot.querySelector(".day-progress");
+        if (fill) fill.style.width = `${progress}%`;
+        if (progressBar) progressBar.setAttribute("aria-valuenow", String(Math.round(progress)));
+        const dot = viewRoot.querySelector("#simulation-dot");
+        const status = viewRoot.querySelector("#simulation-status");
+        if (dot) dot.classList.toggle("running", state.isRunning);
+        if (status) status.textContent = state.isRunning ? t("storeOpen") : t("storeClosed");
+        const inventory = viewRoot.querySelector("#live-inventory");
+        if (inventory) inventory.innerHTML = `${totalInventory().toLocaleString()} <span style="font-size:12px;font-weight:500;letter-spacing:0">${t("units")}</span>`;
+        const cash = viewRoot.querySelector("#live-cash");
+        if (cash) cash.textContent = money(state.cash, true);
+        const revenue = viewRoot.querySelector("#live-revenue");
+        if (revenue) revenue.textContent = money(state.dailyRevenue, true);
+        const salesCaption = viewRoot.querySelector("#live-sales-caption");
+        if (salesCaption) salesCaption.textContent = t("salesToday", { units: state.dailyUnitsSold });
+        const profit = viewRoot.querySelector("#live-profit");
+        if (profit) {
+          profit.textContent = money(state.dailyRevenue - state.dailyCogs, true);
+          profit.classList.toggle("positive", state.dailyRevenue > state.dailyCogs);
+          profit.classList.toggle("negative", state.dailyRevenue < state.dailyCogs);
+        }
+        const units = viewRoot.querySelector("#today-units");
+        if (units) units.textContent = `${state.dailyUnitsSold} ${t("units")}`;
+        const dailyRevenue = viewRoot.querySelector("#today-revenue");
+        if (dailyRevenue) dailyRevenue.textContent = money(state.dailyRevenue, true);
+        viewRoot.querySelectorAll("[data-store-city]").forEach(card => {
+          const store = storeByCity(card.dataset.storeCity);
+          if (!store) return;
+          const capacity = sizeById(store.size).capacity;
+          const percent = Math.min(100, store.inventory / capacity * 100);
+          const inventorySummary = card.querySelector("[data-store-inventory]");
+          if (inventorySummary) inventorySummary.textContent = `${store.inventory} ${t("units")}`;
+          const remainingSummary = card.querySelector(".stock-summary span");
+          if (remainingSummary) remainingSummary.textContent = t("stockRemaining", { stock: store.inventory, capacity });
+          const capacityBar = card.querySelector(".stock-capacity");
+          if (capacityBar) capacityBar.classList.toggle("low", percent < 25);
+          const stockFill = card.querySelector(".stock-capacity span");
+          if (stockFill) stockFill.style.width = `${percent}%`;
+          const shelfBoxes = card.querySelectorAll(".stock-box");
+          const visibleBoxes = Math.min(shelfBoxes.length, Math.ceil(percent / 100 * shelfBoxes.length));
+          shelfBoxes.forEach((box, index) => box.classList.toggle("empty", index >= visibleBoxes));
+          const health = card.querySelector(".stock-legend span:nth-child(2)");
+          if (health) {
+            health.textContent = store.inventory === 0 ? t("noStock") : percent < 25 ? t("lowStock") : t("healthyStock");
+            health.classList.toggle("low", store.inventory === 0 || percent < 25);
+          }
+        });
+        const locationInventory = viewRoot.querySelector("#location-inventory");
+        if (locationInventory && storeByCity().isOpen) locationInventory.textContent = `${storeByCity().inventory} ${t("units")}`;
+        const procurementSelect = viewRoot.querySelector("#purchase-quantity");
+        const targetSelect = viewRoot.querySelector("#purchase-store");
+        const requestedStore = storeByCity(targetSelect ? targetSelect.value : state.purchaseCity);
+        const targetStore = requestedStore && requestedStore.isOpen ? requestedStore : null;
+        if (procurementSelect && targetStore && targetStore.isOpen) {
+          const freeSpace = Math.max(0, sizeById(targetStore.size).capacity - targetStore.inventory - pendingForStore(targetStore));
+          [...procurementSelect.options].forEach(option => { option.disabled = Number(option.value) > freeSpace; });
+        }
+        const deliveryNote = viewRoot.querySelector("#delivery-note");
+        if (deliveryNote) deliveryNote.textContent = targetStore && targetStore.isOpen
+          ? pendingForStore(targetStore)
+            ? `${t("delivery")}: ${pendingForStore(targetStore).toLocaleString()} ${t("units")} · ${t("deliveryArrives", { day: earliestArrival(targetStore) })}`
+            : t("noPendingDelivery")
+          : t("noStoresOpen");
+        const statusCash = viewRoot.querySelector(".procurement-copy small");
+        if (statusCash) statusCash.textContent = t("perUnitCash", { cost: UNIT_COST, cash: money(state.cash, true) });
+      }
+
+      function toggleSimulation() {
+        if (!state.runId) {
+          beginNewRun();
+          return;
+        }
+        const now = Date.now();
+        if (state.isRunning) {
+          updateSimulation(now);
+          if (state.isRunning) {
+            state.pausedRemainingMs = Math.max(0, state.dayEndsAt - now);
+            state.isRunning = false;
+            state.runStatus = "paused";
+            recordOperation("practice_paused", { remainingMs: state.pausedRemainingMs });
+          }
+          saveState();
+          render();
+          showToast(t("paused"));
+          return;
+        }
+        if (state.day > 30) {
+          showToast(t("seasonComplete"));
+          return;
+        }
+        const remaining = state.pausedRemainingMs > 0 ? state.pausedRemainingMs : state.dayDurationSeconds * 1000;
+        state.isRunning = true;
+        state.runStatus = "running";
+        state.dayStartedAt = now - (state.dayDurationSeconds * 1000 - remaining);
+        state.dayEndsAt = now + remaining;
+        state.lastTickAt = now;
+        state.pausedRemainingMs = remaining;
+        recordOperation(state.operationLog.some(item => item.action === "practice_paused") ? "practice_resumed" : "simulation_started", { secondsRemaining: Math.ceil(remaining / 1000) });
+        saveState();
+        render();
+        showToast(t("storeOpened", { seconds: state.dayDurationSeconds }));
+      }
+
+      function purchaseInventory() {
+        const quantityInput = viewRoot.querySelector("#purchase-quantity");
+        const targetSelect = viewRoot.querySelector("#purchase-store");
+        const store = storeByCity(targetSelect ? targetSelect.value : state.purchaseCity);
+        const quantity = quantityInput ? Number(quantityInput.value) : 25;
+        const totalCost = quantity * UNIT_COST;
+        if (!store || !store.isOpen) {
+          showToast(t("storeRequired"));
+          return;
+        }
+        if (quantity <= 0 || !Number.isInteger(quantity)) {
+          showToast(t("invalidQuantity"));
+          return;
+        }
+        const availableCapacity = sizeById(store.size).capacity - store.inventory - pendingForStore(store);
+        if (quantity > availableCapacity) {
+          showToast(t("capacityReached"));
+          return;
+        }
+        if (state.cash < totalCost) {
+          showToast(t("notEnoughCash", { amount: money(totalCost) }));
+          return;
+        }
+        state.cash -= totalCost;
+        store.pendingDeliveries.push({ quantity, arrivesOn: state.day + 1 });
+        state.dailyPurchaseCost += totalCost;
+        state.dailyPurchases += quantity;
+        store.dailyPurchases += quantity;
+        store.dailyPurchaseCost += totalCost;
+        state.activity.unshift({ icon: "⇢", kind: "orderPlaced", count: quantity, amount: totalCost, city: store.city, arrivesOn: state.day + 1, day: state.day });
+        recordOperation("inventory_ordered", { city: store.city, quantity, unitCost: UNIT_COST, totalCost, arrivesOn: state.day + 1, cashAfter: state.cash });
+        state.activity = state.activity.slice(0, 12);
+        saveState();
+        render();
+        showToast(t("stockAdded", { count: quantity, store: cityName(cityById(store.city)), day: state.day + 1 }));
+      }
+
+      function setView(view) {
+        if (!pageInfo[view]) return;
+        currentView = view;
+        render();
+      }
+
+      function openCompanyDialog() {
+        document.querySelector("#company-name-input").value = state.company.name;
+        document.querySelector("#industry-input").value = state.company.industry;
+        document.querySelector("#owner-name-input").value = state.company.owner;
+        localizeCompanyDialog();
+        document.querySelector("#company-dialog").showModal();
+      }
+
+      document.querySelectorAll(".nav-button").forEach(button => button.addEventListener("click", () => setView(button.dataset.view)));
+      document.querySelector("#locale-toggle").addEventListener("click", () => {
+        language = language === "en" ? "zh" : "en";
+        state.language = language;
+        saveState();
+        render();
+      });
+      document.querySelector("#company-switcher").addEventListener("click", openCompanyDialog);
+      document.querySelector("#edit-company-top").addEventListener("click", openCompanyDialog);
+      document.querySelectorAll("[data-close-dialog]").forEach(button => button.addEventListener("click", () => document.querySelector("#company-dialog").close()));
+      document.querySelector("#company-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        state.company.name = String(data.get("companyName")).trim();
+        state.company.industry = String(data.get("industry"));
+        state.company.owner = String(data.get("ownerName")).trim();
+        saveState();
+        document.querySelector("#company-dialog").close();
+        render();
+        showToast(t("companySaved"));
+      });
+
+      updateSimulation(Date.now());
+      render();
+      window.setInterval(() => {
+        if (updateSimulation(Date.now())) render();
+        else updateLiveDisplay(Date.now());
+      }, 250);
+    })();
+  </script>
+</body>
+</html>
