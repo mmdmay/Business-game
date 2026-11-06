@@ -1,0 +1,2452 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>啤酒遊戲｜單機教學版</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f4f3ed;
+      --paper: #fffefa;
+      --paper-soft: #f8f7f1;
+      --ink: #20271f;
+      --muted: #71796f;
+      --line: #e4e5da;
+      --green: #37694e;
+      --green-dark: #28523b;
+      --green-soft: #e9f0e8;
+      --gold: #c28a38;
+      --red: #b94e43;
+      --shadow: 0 12px 32px rgb(34 43 31 / 6%);
+      font-family: "Segoe UI", "Microsoft JhengHei", system-ui, sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; background: var(--page); color: var(--ink); font-size: 14px; }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(1120px, calc(100% - 36px)); margin: 0 auto; padding: 28px 0 64px; }
+    .masthead { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 38px; }
+    .masthead-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-mark { display: grid; width: 39px; height: 39px; place-items: center; border-radius: 12px; background: var(--green); color: white; font-size: 21px; }
+    .brand-name { font-size: 14px; font-weight: 750; letter-spacing: -.02em; }
+    .brand-caption { margin-top: 3px; color: var(--muted); font-size: 10px; letter-spacing: .08em; }
+    .badge { padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--muted); font-size: 11px; }
+    .intro { max-width: 740px; margin-bottom: 25px; }
+    .eyebrow { margin: 0 0 8px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .12em; }
+    h1 { margin: 0; font-size: clamp(29px, 5vw, 43px); letter-spacing: -.055em; line-height: 1.15; }
+    .lede { max-width: 700px; margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
+    .panel { border: 1px solid var(--line); border-radius: 15px; background: var(--paper); box-shadow: var(--shadow); }
+    .panel + .panel { margin-top: 16px; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 17px 20px; border-bottom: 1px solid var(--line); }
+    .panel-head h2, .panel-head h3 { margin: 0; font-size: 14px; font-weight: 750; }
+    .panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .panel-body { padding: 19px 20px; }
+    .setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-size: 12px; font-weight: 700; }
+    .field small { color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .field input, .field select, .order-input { width: 100%; min-height: 41px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; outline: none; background: var(--paper-soft); color: var(--ink); }
+    .field input:focus, .field select:focus, .order-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(55 105 78 / 12%); }
+    .scenario-choice { min-width: 0; margin: 18px 0 0; padding: 0; border: 0; }
+    .scenario-choice legend { margin-bottom: 8px; padding: 0; font-size: 12px; font-weight: 700; }
+    .scenario-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .scenario-option { position: relative; display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 10px; min-height: 74px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); cursor: pointer; }
+    .scenario-option:has(input:checked) { border-color: #9cbea4; background: var(--green-soft); }
+    .scenario-option input { margin: 2px 0 0; accent-color: var(--green); }
+    .scenario-option strong { display: block; font-size: 11px; }
+    .scenario-option small { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .setup-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 18px; padding-top: 17px; border-top: 1px solid var(--line); }
+    .setup-actions small { max-width: 610px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .button { display: inline-flex; min-height: 39px; align-items: center; justify-content: center; gap: 7px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); cursor: pointer; font-size: 12px; font-weight: 700; transition: background .15s, transform .15s; }
+    .button:hover { transform: translateY(-1px); }
+    .button-primary { border-color: var(--green); background: var(--green); color: white; }
+    .button-primary:hover { background: var(--green-dark); }
+    .button:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+    .button:focus-visible { outline: 3px solid rgb(55 105 78 / 25%); outline-offset: 2px; }
+    .lesson { display: grid; grid-template-columns: auto 1fr; gap: 12px; margin-top: 16px; padding: 14px 17px; border: 1px solid #e6d9b8; border-radius: 12px; background: #fbf5e7; color: #66542f; }
+    .lesson-icon { font-size: 17px; }
+    .lesson strong { display: block; margin-bottom: 4px; font-size: 12px; }
+    .lesson p { margin: 0; font-size: 11px; line-height: 1.65; }
+    [hidden] { display: none !important; }
+    .game-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+    .game-welcome { color: var(--muted); font-size: 12px; }
+    .game-welcome strong { color: var(--ink); }
+    .round-pill { padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); font-size: 12px; }
+    .round-pill strong { color: var(--green); }
+    .role-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-bottom: 16px; }
+    .role-tile { position: relative; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+    .role-tile.player { border-color: #9cbea4; background: var(--green-soft); }
+    .role-tile-name { font-size: 11px; font-weight: 750; }
+    .role-tile-mode { display: block; margin-top: 5px; color: var(--muted); font-size: 9px; }
+    .role-tile.player .role-tile-mode { color: var(--green-dark); }
+    .round-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(250px, .75fr); gap: 16px; align-items: start; }
+    .current-demand { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 15px; border-radius: 10px; background: var(--paper-soft); }
+    .current-demand small { color: var(--muted); font-size: 10px; }
+    .current-demand strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+    .demand-unit { color: var(--muted); font-size: 10px; }
+    .round-role-list { display: grid; gap: 8px; margin-top: 13px; }
+    .round-role { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px; align-items: center; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+    .round-role:last-child { border-bottom: 0; }
+    .round-role-name { font-size: 11px; font-weight: 700; }
+    .round-role-value { color: var(--muted); font-size: 10px; text-align: right; }
+    .round-role-value strong { color: var(--ink); font-size: 12px; }
+    .operations-chart { margin-top: 16px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-soft); }
+    .operations-chart svg { display: block; width: 100%; min-width: 470px; height: auto; }
+    .operations-chart text { font: 10px "Segoe UI", "Microsoft JhengHei", sans-serif; fill: var(--muted); }
+    .operations-chart .operation-value { fill: var(--ink); font-weight: 700; }
+    .visibility-note { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--green-soft); color: var(--green-dark); font-size: 10px; line-height: 1.55; }
+    .round-role-list.local .round-role { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .round-role-list.local .round-role-name { grid-column: 1 / -1; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .round-role-list.local .round-role-value { text-align: left; }
+    .decision-card { border: 1px solid #c9d9c9; border-radius: 11px; background: #f4f8f1; }
+    .decision-card .panel-head { padding: 13px 14px; border-color: #e0e9df; }
+    .decision-card .panel-body { padding: 14px; }
+    .decision-hint { margin: 0 0 12px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .recommendation { margin-bottom: 10px; padding: 10px; border-radius: 8px; background: #e9f0e8; color: var(--green-dark); font-size: 11px; line-height: 1.5; }
+    .recommendation strong { font-size: 15px; }
+    .decision-card .button { width: 100%; margin-top: 11px; }
+    .decision-foot { margin-top: 10px; color: var(--muted); font-size: 9px; line-height: 1.55; }
+    .week-feedback { margin-top: 13px; padding: 12px 14px; border-radius: 9px; background: var(--green-soft); color: var(--green-dark); font-size: 11px; line-height: 1.6; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 9px 16px; margin: 14px 0 2px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
+    .legend-line { width: 19px; height: 0; border-top: 3px solid var(--legend); border-radius: 4px; }
+    .legend-line.dashed { border-top-style: dashed; }
+    .chart-frame { width: 100%; overflow-x: auto; }
+    .chart-frame svg { display: block; width: 100%; min-width: 570px; height: auto; }
+    .chart-frame text { fill: var(--muted); font: 10px "Segoe UI", "Microsoft JhengHei", sans-serif; }
+    .chart-grid { stroke: var(--line); stroke-width: 1; }
+    .chart-axis { stroke: #a7afa1; stroke-width: 1; }
+    .chart-path { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-path.demand { stroke-width: 2; stroke-dasharray: 6 5; }
+    .chart-dot { stroke: var(--paper); stroke-width: 1.5; }
+    .chart-annotation { fill: #f3e5bf; fill-opacity: .38; }
+    .chart-trend-label { fill: #785d27 !important; font-size: 9px !important; font-weight: 700; }
+    .chart-trend-arrow { fill: none; stroke: #9c7430; stroke-width: 1.6; }
+    .chart-empty { display: grid; min-height: 185px; place-items: center; color: var(--muted); font-size: 12px; text-align: center; }
+    .live-views { margin-top: 16px; }
+    .live-views > .panel-head { border-bottom: 0; }
+    .live-chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 16px 16px; }
+    .live-chart-card { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-soft); }
+    .live-chart-card.wave-card { grid-column: 1 / -1; }
+    .live-chart-card h3 { margin: 0; font-size: 11px; }
+    .live-chart-card p { margin: 4px 0 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .live-chart-card .chart-frame svg { min-width: 480px; }
+    .wave-controls { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 10px; }
+    .wave-controls select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font: inherit; }
+    .wave-playback-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .wave-playback-status { color: var(--muted); font-size: 10px; }
+    .chart-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .chart-export-button { flex: 0 0 auto; min-height: 31px; padding: 0 9px; font-size: 10px; }
+    .chart-export-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    .profit-positive { stroke: #3d7854 !important; }
+    .profit-negative { stroke: #b94e43 !important; }
+    .manual { margin: 0 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+    .manual summary { padding: 10px 12px; color: var(--green-dark); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .manual-content { max-height: 60vh; overflow: auto; padding: 0 16px 16px; font-size: 11px; line-height: 1.7; }
+    .manual-content h3 { margin: 12px 0 4px; font-size: 12px; }
+    .manual-content p { margin: 4px 0; color: var(--muted); }
+    .reset-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+    .wave-chart svg { min-width: 620px !important; }
+    .wave-grid { stroke: var(--line); stroke-width: 1; }
+    .wave-baseline { stroke: #303a30; stroke-width: 1.5; stroke-dasharray: 6 5; }
+    .wave-path { fill: none; stroke: #527a9c; stroke-width: 3; stroke-linecap: round; }
+    .wave-node { stroke: var(--paper); stroke-width: 3; }
+    .wave-value-bg { fill: var(--paper); stroke: var(--line); }
+    .wave-value { fill: var(--ink) !important; font-size: 11px !important; font-weight: 750; }
+    .wave-stage { fill: var(--ink) !important; font-size: 11px !important; font-weight: 700; }
+    .wave-detail { font-size: 9px !important; }
+    .wave-label { fill: var(--muted) !important; font-size: 9px !important; }
+    .live-chart-card .chart-legend { gap: 7px 11px; margin-top: 7px; }
+    .live-chart-card .legend-item { font-size: 9px; }
+    .amplification-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .amplification-chip { padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); font-size: 9px; font-variant-numeric: tabular-nums; }
+    .flow-panel .panel-body { padding: 14px 16px; }
+    .flow-wrap { width: 100%; overflow-x: auto; }
+    .flow-svg { display: block; width: 100%; min-width: 830px; height: auto; }
+    .flow-node { fill: var(--paper-soft); stroke: var(--line); stroke-width: 1.3; }
+    .flow-node.player { fill: #edf4ea; stroke: #83aa8c; stroke-width: 2; }
+    .flow-node.actor { fill: var(--paper); stroke: var(--line); }
+    .flow-metric { fill: var(--ink) !important; font-size: 10px !important; }
+    .flow-muted { fill: var(--muted) !important; font-size: 9px !important; }
+    .flow-title { fill: var(--ink) !important; font-size: 12px !important; font-weight: 700; }
+    .flow-arrow-demand { fill: none; stroke: #9b7141; stroke-width: 2; }
+    .flow-arrow-beer { fill: none; stroke: #3d7854; stroke-width: 2; }
+    .flow-arrow-order { fill: none; stroke: #527a9c; stroke-width: 2; stroke-dasharray: 5 4; }
+    .flow-direction-legend { display: flex; flex-wrap: wrap; gap: 9px 16px; margin: 0 0 10px; }
+    .flow-arrows { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 9px; }
+    .flow-arrow-key { width: 22px; border-top: 2px solid currentColor; }
+    .flow-arrow-key.orders { color: #527a9c; border-top-style: dashed; }
+    .flow-arrow-key.delivery { color: #3d7854; }
+    .flow-arrow-key.demand { color: #9b7141; }
+    .analysis-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, .9fr); gap: 16px; align-items: start; margin-top: 16px; }
+    .analysis-grid .panel { margin: 0; }
+    .summary-callout { margin: 0 0 14px; padding: 11px 12px; border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; background: #faf6ea; color: #625536; font-size: 11px; line-height: 1.65; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 10px; white-space: nowrap; }
+    th, td { padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+    th { color: var(--muted); font-size: 9px; font-weight: 700; }
+    th:first-child, td:first-child { text-align: left; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .role-dot { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--role-color); vertical-align: middle; }
+    .table-note { margin: 11px 0 0; color: var(--muted); font-size: 9px; line-height: 1.55; }
+    .results-head-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+    .results-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 17px; }
+    .results-footer small { color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .history-table { min-width: 760px; }
+    .history-table th:not(:first-child), .history-table td:not(:first-child) { text-align: right; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 24px, 600px); padding-top: 18px; }
+      .masthead { margin-bottom: 28px; }
+      .setup-grid, .scenario-options, .round-layout, .analysis-grid, .live-chart-grid { grid-template-columns: 1fr; }
+      .role-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .round-role { grid-template-columns: 1fr 1fr; }
+      .setup-actions { align-items: flex-start; flex-direction: column; }
+      .setup-actions .button { width: 100%; }
+      .panel-head, .panel-body { padding-right: 15px; padding-left: 15px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">♧</div>
+        <div><div class="brand-name">啤酒遊戲</div><div class="brand-caption">供應鏈學習實驗室 · 單機版</div></div>
+      </div>
+      <div class="masthead-actions">
+        <button class="button" id="language-toggle" type="button" lang="en" aria-label="Switch language">English</button>
+        <details class="manual" id="manual"><summary id="manual-link">使用說明手冊</summary><div class="manual-content" id="manual-content"></div></details>
+        <span class="badge" id="privacy-badge">純前端 · 資料只留在此瀏覽器</span>
+      </div>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow">SUPPLY CHAIN SIMULATION</p>
+      <h1>一個決策，四段回音。</h1>
+      <p class="lede">扮演供應鏈中的一個角色，讓電腦接手其他三棒。逐週下單、承受交期，再用同一條時間軸比較顧客需求與各階段收到的需求，觀察波動如何沿供應鏈傳遞。</p>
+    </section>
+
+    <section class="panel" id="setup-card" aria-labelledby="setup-title">
+      <div class="panel-head"><div><h2 id="setup-title">開始一場新模擬</h2><p>先選你的角色；設定不會影響原有的 Fieldwork 頁面或其他遊戲。</p></div></div>
+      <form class="panel-body" id="setup-form">
+        <div class="setup-grid">
+          <div class="field"><label for="player-name">你的名字</label><input id="player-name" name="player-name" maxlength="32" autocomplete="name" value="學生" required><small>只在本頁顯示，不會上傳。</small></div>
+          <div class="field"><label for="player-role">你要操作的角色</label><select id="player-role" name="player-role"><option value="retailer">零售商</option><option value="wholesaler">批發商</option><option value="distributor">配送商</option><option value="manufacturer">製造商</option></select><small>你的下單由你決定；其餘三個角色由補貨策略控制。</small></div>
+          <div class="field"><label for="round-count">模擬週數</label><select id="round-count" name="round-count"><option value="8">8 週 · 快速體驗</option><option value="12" selected>12 週 · 建議教學</option><option value="16">16 週</option><option value="20">20 週</option><option value="24">24 週 · 完整觀察</option></select><small>每一回合代表一週；每次按鈕推進一週。</small></div>
+          <div class="field"><label for="demand-script">顧客需求劇本</label><select id="demand-script" name="demand-script"><option value="surge" selected>需求突增 · 第 5 週起由 4 升至 8</option><option value="pulse">促銷脈衝 · 單週高峰再回落</option><option value="wave">緩步波動 · 逐週升降</option><option value="steady">穩定需求 · 每週 4</option></select><small>這是零售商每週收到的外生顧客需求，不是下游角色的訂單。</small></div>
+        </div>
+        <fieldset class="scenario-choice">
+          <legend>教學價格設定｜貨幣單位／箱</legend>
+          <p class="table-note">預設售價沿供應鏈逐階加價，避免上游售價高於下游售價。售價順序：製造商 → 配送商 → 批發商 → 零售商 → 顧客；請設定零售商售價 ≥ 批發商售價 ≥ 配送商售價 ≥ 製造商售價 ≥ 製造商生產成本。各數值可在開局前調整，範圍為 0–9,999。</p>
+          <div class="setup-grid price-grid">
+            <div class="field"><label for="retail-price">零售商售予最終顧客</label><input id="retail-price" name="retail-price" type="number" min="0" max="9999" step="0.01" value="12" required><small>零售商營收／顧客支出單價。</small></div>
+            <div class="field"><label for="wholesaler-price">批發商售予零售商</label><input id="wholesaler-price" name="wholesaler-price" type="number" min="0" max="9999" step="0.01" value="9" required><small>零售商進貨單價；批發商出貨單價。</small></div>
+            <div class="field"><label for="distributor-price">配送商售予批發商</label><input id="distributor-price" name="distributor-price" type="number" min="0" max="9999" step="0.01" value="7" required><small>批發商進貨單價；配送商出貨單價。</small></div>
+            <div class="field"><label for="manufacturer-price">製造商售予配送商</label><input id="manufacturer-price" name="manufacturer-price" type="number" min="0" max="9999" step="0.01" value="5" required><small>配送商進貨單價；製造商出貨單價。</small></div>
+            <div class="field"><label for="production-cost">製造商單位生產成本</label><input id="production-cost" name="production-cost" type="number" min="0" max="9999" step="0.01" value="2" required><small>依製造商本週實際出貨量計算。</small></div>
+          </div>
+        </fieldset>
+        <fieldset class="scenario-choice">
+          <legend>選擇資訊情境</legend>
+          <div class="scenario-options">
+            <label class="scenario-option"><input type="radio" name="information-mode" value="full" checked><span><strong>完整資訊</strong><small>遊戲中查看四角色的需求、下單、庫存、欠交與在途狀態。</small></span></label>
+            <label class="scenario-option"><input type="radio" name="information-mode" value="local"><span><strong>局部資訊</strong><small>遊戲中只查看你收到的下游訂單、自己的決策與庫存／欠交／在途；其他角色資訊不顯示。</small></span></label>
+          </div>
+        </fieldset>
+        <div class="setup-actions"><small>簡化規則：每週先收取到期貨物，再滿足下游需求（舊欠交優先），再下補貨單。零售商與批發商訂單 2 週後到貨；製造商生產計畫 2 週後完工，出貨後再運輸 2 週。下游訂單訊號下一週才傳到上游，因此配送商下單至到貨約 5 週（1 週訊息傳遞＋2 週生產＋2 週運輸）。持有成本為每單位每週 1，欠交成本為每單位每週 2。進貨成本按本週實際到貨量計，製造成本按製造商本週實際出貨量計；這是簡化的教學現金口徑。供應商供貨不限，沒有外部服務或隨機範例資料。</small><button class="button button-primary" type="submit">開始模擬 <span aria-hidden="true">→</span></button></div>
+      </form>
+    </section>
+
+    <div class="lesson" role="note"><span class="lesson-icon" aria-hidden="true">✳</span><div><strong>教學提示｜資訊延遲容易讓小波動變成大訂單</strong><p>每個角色只看到自己收到的下游需求，並依手邊庫存、欠交與在途貨物決定補貨。追單、交期與資訊逐級傳遞，可能讓上游的訂單更不穩定；也請留意庫存與缺貨成本的取捨。</p></div></div>
+
+    <section id="game-area" hidden aria-live="polite">
+      <div class="game-top">
+        <div class="game-welcome">你好，<strong id="active-player-name"></strong> · 你的角色：<strong id="active-player-role"></strong></div>
+        <div><span class="badge" id="scenario-indicator"></span> <span class="round-pill">週次 <strong id="round-current">0</strong> / <span id="round-total">0</span></span></div>
+      </div>
+      <div class="role-strip" id="role-strip" aria-label="供應鏈角色與控制方式"></div>
+      <div class="round-layout">
+        <section class="panel" aria-labelledby="week-title">
+          <div class="panel-head"><div><h2 id="week-title">本週需求與供應鏈</h2><p id="week-subtitle"></p></div></div>
+          <div class="panel-body">
+            <div class="current-demand" id="customer-demand-panel"><div><small id="demand-label"></small><div class="demand-unit" id="demand-context"></div></div><div><strong id="customer-demand">—</strong> <span class="demand-unit">箱</span></div></div>
+            <p class="visibility-note" id="visibility-note"></p>
+            <div class="round-role-list" id="round-role-list"></div>
+            <div class="chart-title-row"><span>本週箱數分布</span><button class="button chart-export-button" type="button" data-export-chart="operations-chart">下載 PNG</button></div><div class="operations-chart" id="operations-chart" role="img"></div>
+            <div class="week-feedback" id="week-feedback" hidden></div>
+          </div>
+        </section>
+        <section class="decision-card" aria-labelledby="decision-title">
+          <div class="panel-head"><div><h2 id="decision-title">你的補貨決策</h2><p id="decision-lead-time">零售商與批發商 2 週到貨；配送商訂單另含製造 2 週＋運輸 2 週。</p></div></div>
+          <div class="panel-body">
+            <p class="decision-hint" id="decision-hint">下單量決定你向上游（製造商則為生產）提出的訂單，並成為下一週下游角色收到的需求訊號。</p>
+            <div class="recommendation" id="recommendation-panel">策略參考量：<strong id="recommended-order">—</strong> 箱<br><span id="recommendation-note">依預測需求補足目標庫存，僅供參考。</span></div>
+            <label class="field" for="order-input"><span id="order-label">本週下單量（箱）</span><input class="order-input" id="order-input" type="number" min="0" max="999" step="1" value="0" inputmode="numeric"></label>
+            <button class="button button-primary" id="play-round" type="button">確認下單並結束本週 <span aria-hidden="true">→</span></button>
+            <div class="decision-foot" id="decision-foot">電腦策略：以最近需求平均值估算（最長 3 週），目標庫存＝預測需求 ×（交期 + 1 週）+ 4 箱緩衝，再扣除庫存與在途貨物並考量欠交。這是固定的基準策略，非最佳化預測。</div>
+          </div>
+        </section>
+      </div>
+      <section class="panel flow-panel" style="margin-top:16px" aria-labelledby="flow-title">
+        <div class="panel-head"><div><h2 id="flow-title">供應鏈即時運作圖</h2><p id="flow-subtitle">需求訊號往上游、啤酒實物流往下游；數值隨每週回合更新。</p></div></div>
+        <div class="panel-body">
+          <div class="flow-direction-legend" aria-label="流程方向圖例">
+            <span class="flow-arrows"><span class="flow-arrow-key demand"></span>顧客需求進入</span>
+            <span class="flow-arrows"><span class="flow-arrow-key orders"></span>訂單／需求訊號向上游</span>
+            <span class="flow-arrows"><span class="flow-arrow-key delivery"></span>貨物／出貨向下游</span>
+          </div>
+          <div class="flow-wrap" id="flow-diagram"></div>
+        </div>
+      </section>
+      <section class="panel live-views" aria-labelledby="live-views-title">
+        <div class="panel-head"><div><h2 id="live-views-title">遊戲中趨勢｜隨週次即時更新</h2><p id="live-view-scope">圖表只顯示目前情境允許查看的角色與實際已完成資料。</p></div></div>
+        <div class="live-chart-grid">
+          <section class="live-chart-card wave-card" aria-labelledby="demand-wave-title"><div class="chart-title-row"><h3 id="demand-wave-title">單週需求波形｜沿供應鏈逐站傳遞</h3><button class="button chart-export-button" type="button" data-export-chart="demand-wave-chart">下載 PNG</button></div><p id="demand-wave-caption">每個節點是該週角色實際收到的需求，線條按零售商 → 批發商 → 配送商 → 製造商連接；各點下方列出本週向上游下單量。</p><label class="wave-controls" for="wave-week-select"><span>檢視週次</span><select id="wave-week-select" aria-label="選擇需求波形週次" disabled><option value="">完成第一週後可選擇</option></select></label><div class="wave-playback-controls" id="wave-playback-controls" hidden><button class="button" id="wave-playback-toggle" type="button" aria-pressed="false">▶ 逐週播放</button><span class="wave-playback-status" id="wave-playback-status" role="status" aria-live="polite">遊戲完成後可播放逐週需求變化。</span></div><div class="chart-frame wave-chart" id="demand-wave-chart" aria-live="polite"></div><div class="chart-legend" id="demand-wave-legend"></div></section>
+          <section class="live-chart-card" aria-labelledby="live-order-title"><div class="chart-title-row"><h3 id="live-order-title">顧客需求與向上游下單</h3><button class="button chart-export-button" type="button" data-export-chart="live-order-chart">下載 PNG</button></div><p>訂單牛鞭效應；虛線為可見需求基準，實線為實際下單量。</p><div class="chart-frame" id="live-order-chart"></div><div class="chart-legend" id="live-order-legend"></div><div class="amplification-summary" id="live-amplification"></div></section>
+          <section class="live-chart-card" aria-labelledby="live-stock-title"><div class="chart-title-row"><h3 id="live-stock-title">庫存與欠交</h3><button class="button chart-export-button" type="button" data-export-chart="live-stock-chart">下載 PNG</button></div><p>實線為期末庫存、虛線為期末欠交；兩者為不同狀態，非負值。</p><div class="chart-frame" id="live-stock-chart"></div><div class="chart-legend" id="live-stock-legend"></div></section>
+          <section class="live-chart-card" aria-labelledby="live-cost-title"><div class="chart-title-row"><h3 id="live-cost-title">累積持有／缺貨成本</h3><button class="button chart-export-button" type="button" data-export-chart="live-cost-chart">下載 PNG</button></div><p>以角色顏色區分；實線為持有成本，虛線為欠交成本。</p><div class="chart-frame" id="live-cost-chart"></div><div class="chart-legend" id="live-cost-legend"></div></section>
+          <section class="live-chart-card" aria-labelledby="live-profit-title"><div class="chart-title-row"><h3 id="live-profit-title">每週淨獲利</h3><button class="button chart-export-button" type="button" data-export-chart="live-profit-chart">下載 PNG</button></div><p>各角色每週營收扣除進貨／生產、持有及缺貨成本；局部情境僅顯示本人。</p><div class="chart-frame" id="live-profit-chart"></div><div class="chart-legend" id="live-profit-legend"></div></section>
+        </div>
+      </section>
+    </section>
+
+    <section id="results-area" hidden aria-labelledby="results-title">
+      <p class="visibility-note" id="review-scenario-note" style="margin-bottom:16px"></p>
+      <div class="analysis-grid">
+        <section class="panel" aria-labelledby="results-title">
+          <div class="panel-head"><div><h2 id="results-title">牛鞭效應｜訂單波動逐級放大</h2><p>實線比較四角色實際下單量，虛線為終端顧客需求；淡色區段依連續週次判斷放大與回落。</p></div><div class="results-head-actions"><button class="button" id="download-all-charts" type="button">下載全部圖表（總覽 PNG）</button><button class="button" id="download-csv" type="button">下載 CSV</button></div></div>
+          <div class="panel-body">
+            <p class="summary-callout" id="bullwhip-summary">完成第一週後，這裡會用實際模擬資料計算波動。</p>
+            <div class="chart-title-row"><span></span><button class="button chart-export-button" type="button" data-export-chart="demand-chart">下載 PNG</button></div><div class="chart-frame" id="demand-chart"></div>
+            <div class="chart-legend" id="demand-legend" aria-label="需求圖圖例"></div>
+            <p class="table-note">放大指標＝各角色向上游訂單的週變異數 ÷ 終端顧客需求的週變異數；比值大於 1 表示訂單波動更大。少於 2 週或顧客需求變異數為 0 時顯示「—」。圖上用 3 週移動變異係數偵測波動；除連續 3 個重疊視窗高於顧客基準 1.35 倍外，觀察的 5 週內還須出現至少 3 次跨週訂單變化，才標註放大區段，避免單週尖峰觸發連續視窗。</p>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="cost-chart-title">
+          <div class="panel-head"><div><h2 id="cost-chart-title">累積營運成本</h2><p>持有與欠交成本合計，依每週實際結算累積。</p></div><button class="button chart-export-button" type="button" data-export-chart="cost-chart">下載 PNG</button></div>
+          <div class="panel-body"><div class="chart-frame" id="cost-chart"></div><div class="chart-legend" id="cost-legend" aria-label="成本圖圖例"></div></div>
+        </section>
+        <section class="panel" aria-labelledby="profit-chart-title"><div class="panel-head"><div><h2 id="profit-chart-title">四角色每週淨獲利</h2><p>營收－進貨／生產成本－持有成本－缺貨成本。</p></div><button class="button chart-export-button" type="button" data-export-chart="profit-chart">下載 PNG</button></div><div class="panel-body"><div class="chart-frame" id="profit-chart"></div><div class="chart-legend" id="profit-legend"></div></div></section>
+      </div>
+
+      <section class="panel" aria-labelledby="score-title">
+        <div class="panel-head"><div><h2 id="score-title">四角色營運與財務復盤</h2><p>依供應鏈固定順序並排；財務結果依開局價格與實際出貨／到貨逐週計算。</p></div></div>
+        <div class="panel-body">
+          <p class="summary-callout" id="customer-spend-summary"></p>
+          <p class="table-note" id="price-summary"></p>
+          <p class="table-note">毛利＝營收－進貨／生產成本；總成本＝進貨／生產成本＋持有成本＋缺貨成本；淨獲利＝營收－總成本。進貨成本依本週收到上游貨品數計，製造成本依製造商本週實際出貨數計；這是簡化的教學現金口徑，未按存貨配比銷貨成本或計利息。最終顧客支出＝零售商實際出貨箱數 × 零售價；上游角色營收是供應鏈內部交易，不可加總後當作顧客支出。</p>
+          <div class="table-wrap">
+            <table><thead><tr><th>供應鏈角色</th><th>訂單放大比<br>對顧客需求</th><th>收到需求變異數比</th><th>需求變異係數</th><th>平均訂單</th><th>期末庫存</th><th>期末欠交</th><th>營收</th><th>進貨／生產成本</th><th>毛利</th><th>持有成本</th><th>缺貨成本</th><th>總成本</th><th>淨獲利</th></tr></thead><tbody id="score-rows"></tbody></table>
+          </div>
+          <p class="table-note">需求變異係數＝標準差 ÷ 平均需求；平均需求為 0 時顯示「—」。期末庫存／欠交為最後已完成週的狀態。持有成本＝各週期末庫存 × 1；缺貨成本＝各週期末欠交 × 2，兩者為財務總成本之外的營運成本。</p>
+          <div class="results-footer"><small id="result-status">目前僅顯示已完成的回合。</small></div>
+        </div>
+      </section>
+      <section class="panel" aria-labelledby="history-title">
+        <div class="panel-head"><div><h2 id="history-title">每週需求訊號紀錄</h2><p>下游需求逐週傳遞；這份歷史也是上方圖表與 CSV 的資料來源。</p></div></div>
+        <div class="panel-body"><div class="table-wrap"><table class="history-table"><thead><tr><th>週次</th><th>顧客需求<br>外生基準</th><th>零售商<br>收到需求</th><th>批發商<br>收到需求</th><th>配送商<br>收到需求</th><th>製造商<br>收到需求</th><th>本週最高需求訊號</th></tr></thead><tbody id="history-rows"></tbody></table></div></div>
+      </section>
+    </section>
+    <div class="reset-row" id="reset-row" hidden><button class="button" id="restart-game" type="button">重開遊戲</button></div>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+
+      const LEAD_TIME = 2;
+      const MANUFACTURING_TIME = 2;
+      const HOLDING_COST = 1;
+      const SHORTAGE_COST = 2;
+      const INITIAL_STOCK = 12;
+      const INITIAL_DOWNSTREAM_ORDER = 4;
+      const INFORMATION_MODES = {
+        full: { name: "完整資訊", inGame: "遊戲中可查看四個角色的營運資訊。", review: "完整資訊情境｜遊戲中可查看四個角色的營運資訊；以下為同一場遊戲的完整教學復盤。" },
+        local: { name: "局部資訊", inGame: "局部資訊情境｜僅顯示你的下游訂單及本人角色資訊；其他角色的操作與狀態不會顯示。", review: "局部資訊情境｜遊戲中僅顯示本人角色資訊。遊戲已結束，以下開放完整供應鏈資料作教學復盤。" }
+      };
+      const ROLES = [
+        { id: "retailer", name: "零售商", color: "#3d7854" },
+        { id: "wholesaler", name: "批發商", color: "#b87a2f" },
+        { id: "distributor", name: "配送商", color: "#527a9c" },
+        { id: "manufacturer", name: "製造商", color: "#9b5b69" }
+      ];
+      const PRICE_INPUT_IDS = ["retail-price", "wholesaler-price", "distributor-price", "manufacturer-price", "production-cost"];
+      const DEMAND_NAMES = { surge: "需求突增", pulse: "促銷脈衝", wave: "緩步波動", steady: "穩定需求" };
+      const $ = (id) => document.getElementById(id);
+      let state = null;
+      let waveRenderedWeek = 0;
+      let wavePlaybackTimer = null;
+      let language = "zh";
+      const textTranslationSources = new WeakMap();
+      const textTranslationOutputs = new WeakMap();
+      const attributeTranslationSources = new WeakMap();
+      const attributeTranslationOutputs = new WeakMap();
+      const EN_TEXT = [
+        ["供應鏈學習實驗室 · 單機版", "Supply Chain Learning Lab · Solo"],
+        ["使用說明手冊", "User manual"],
+        ["純前端 · 資料只留在此瀏覽器", "Frontend only · Data stays in this browser"],
+        ["一個決策，四段回音。", "One decision, four echoes."],
+        ["扮演供應鏈中的一個角色，讓電腦接手其他三棒。逐週下單、承受交期，再用同一條時間軸比較顧客需求與各階段收到的需求，觀察波動如何沿供應鏈傳遞。", "Play one role while the computer controls the other three. Place weekly orders, experience lead times, and compare customer demand with orders received at each stage to see how variation travels through the supply chain."],
+        ["開始一場新模擬", "Start a new simulation"],
+        ["先選你的角色；設定不會影響原有的 Fieldwork 頁面或其他遊戲。", "Choose your role. These settings do not affect Fieldwork or other games."],
+        ["你的名字", "Your name"],
+        ["只在本頁顯示，不會上傳。", "Shown only on this page; nothing is uploaded."],
+        ["你要操作的角色", "Your role"],
+        ["你的下單由你決定；其餘三個角色由補貨策略控制。", "You choose your orders; a replenishment strategy controls the other three roles."],
+        ["模擬週數", "Simulation length"],
+        ["每一回合代表一週；每次按鈕推進一週。", "Each round represents one week. The button advances one week."],
+        ["顧客需求劇本", "Customer demand scenario"],
+        ["這是零售商每週收到的外生顧客需求，不是下游角色的訂單。", "This is the retailer's weekly exogenous customer demand, not an order from a downstream role."],
+        ["教學價格設定｜貨幣單位／箱", "Teaching prices | currency units per case"],
+        ["預設售價沿供應鏈逐階加價，避免上游售價高於下游售價。售價順序：製造商 → 配送商 → 批發商 → 零售商 → 顧客；請設定零售商售價 ≥ 批發商售價 ≥ 配送商售價 ≥ 製造商售價 ≥ 製造商生產成本。各數值可在開局前調整，範圍為 0–9,999。", "Default prices increase at each supply-chain stage. Set Retailer price ≥ Wholesaler price ≥ Distributor price ≥ Manufacturer price ≥ production cost. Adjust any value before starting; valid range: 0–9,999."],
+        ["零售商售予最終顧客", "Retailer sells to final customer"],
+        ["零售商營收／顧客支出單價。", "Retailer revenue / customer spending per case."],
+        ["批發商售予零售商", "Wholesaler sells to Retailer"],
+        ["零售商進貨單價；批發商出貨單價。", "Retailer's purchase price; Wholesaler's selling price."],
+        ["配送商售予批發商", "Distributor sells to Wholesaler"],
+        ["批發商進貨單價；配送商出貨單價。", "Wholesaler's purchase price; Distributor's selling price."],
+        ["製造商售予配送商", "Manufacturer sells to Distributor"],
+        ["配送商進貨單價；製造商出貨單價。", "Distributor's purchase price; Manufacturer's selling price."],
+        ["製造商單位生產成本", "Manufacturer unit production cost"],
+        ["依製造商本週實際出貨量計算。", "Based on the Manufacturer's actual shipments this week."],
+        ["毛利＝營收－進貨／生產成本；總成本＝進貨／生產成本＋持有成本＋缺貨成本；淨獲利＝營收－總成本。進貨成本依本週收到上游貨品數計，製造成本依製造商本週實際出貨數計；這是簡化的教學現金口徑，未按存貨配比銷貨成本或計利息。最終顧客支出＝零售商實際出貨箱數 × 零售價；上游角色營收是供應鏈內部交易，不可加總後當作顧客支出。", "Gross profit = revenue − purchase/production cost. Total cost = purchase/production cost + holding cost + shortage cost. Net profit = revenue − total cost. Purchase cost is based on goods received this week; Manufacturer production cost is based on actual shipments, a simplified teaching cash convention without inventory-matched cost of goods sold or interest. Final-customer spending = actual Retailer shipments × retail price; internal supply-chain revenue must not be added as customer spending."],
+        ["需求變異係數＝標準差 ÷ 平均需求；平均需求為 0 時顯示「—」。期末庫存／欠交為最後已完成週的狀態。持有成本＝各週期末庫存 × 1；缺貨成本＝各週期末欠交 × 2，兩者為財務總成本之外的營運成本。", "Demand coefficient of variation = standard deviation ÷ mean demand; shown as — when mean demand is zero. Ending inventory/backlog is the final completed week's state. Holding cost = each week's ending inventory × 1; shortage cost = ending backlog × 2. These operating costs are separate from financial total cost."],
+        ["選擇資訊情境", "Choose an information scenario"],
+        ["完整資訊", "Full information"],
+        ["遊戲中查看四角色的需求、下單、庫存、欠交與在途狀態。", "During play, view demand, orders, stock, backlog, and pipeline for all four roles."],
+        ["局部資訊", "Local information"],
+        ["遊戲中只查看你收到的下游訂單、自己的決策與庫存／欠交／在途；其他角色資訊不顯示。", "During play, see only your downstream order, decisions, inventory, backlog, and pipeline. Other roles' information is hidden."],
+        ["模擬開始前請先選擇資訊情境。", "Choose an information scenario before starting."],
+        ["局部視野比較本人收到的需求與本週決策下單；其餘供應鏈節點已隱藏。", "Local view compares only demand received by you with your order decision this week; other supply-chain stages are hidden."],
+        ["局部視野只比較本人收到的需求與本週決策下單；其餘供應鏈節點已隱藏。", "Local view compares only demand received by you with your order decision this week; other supply-chain stages are hidden."],
+        ["在本情境中隱藏", "Hidden in this scenario"],
+        ["局部資訊情境只會顯示本人角色資料；完成遊戲後才公開完整供應鏈波形。", "Local information shows only your role during play; the full supply-chain wave is revealed after the game."],
+        ["顯示本人下游需求、角色庫存／欠交／管線／出貨和上游訂單；角色名稱不顯示資料。", "Shows only your downstream demand, inventory, backlog, pipeline, shipments, and upstream orders; other roles' names and data are hidden."],
+        ["僅顯示你的下游需求、本角色庫存／欠交／在途／出貨與向上游訂單；其他角色只用匿名節點表示，不顯示其資料。", "Only your downstream demand, inventory, backlog, pipeline, shipments, and upstream orders are shown; other roles are represented by anonymous nodes with no data."],
+        ["完成第一週後，會以該週實際收到的需求繪製波形。", "After week 1, the wave is drawn from actual demand received that week."],
+        ["完成至少兩週後計算訂單變異數比。", "Order variance ratios are calculated after at least two weeks."],
+        ["簡化規則：每週先收取到期貨物，再滿足下游需求（舊欠交優先），再下補貨單。零售商與批發商訂單 2 週後到貨；製造商生產計畫 2 週後完工，出貨後再運輸 2 週。下游訂單訊號下一週才傳到上游，因此配送商下單至到貨約 5 週（1 週訊息傳遞＋2 週生產＋2 週運輸）。持有成本為每單位每週 1，欠交成本為每單位每週 2。進貨成本按本週實際到貨量計，製造成本按製造商本週實際出貨量計；這是簡化的教學現金口徑。供應商供貨不限，沒有外部服務或隨機範例資料。", "Simplified rules: receive due shipments, fulfill downstream demand (old backlog first), then order. Retailer and Wholesaler orders arrive after 2 weeks. A Manufacturer production plan completes after 2 weeks, then ships and takes 2 more weeks in transit. Upstream order signals arrive the following week, so a Distributor order takes about 5 weeks to arrive: 1 week for information transfer, 2 for production, and 2 for transit. Holding cost is 1 per case per week; backlog cost is 2. Purchase cost is based on actual arrivals; manufacturing cost is based on actual Manufacturer shipments, a simplified teaching cash-flow convention. Supplier capacity is unlimited; no external services or random sample data are used."],
+        ["開始模擬", "Start simulation"],
+        ["教學提示｜資訊延遲容易讓小波動變成大訂單", "Teaching tip | Information delays can turn small variations into large orders"],
+        ["每個角色只看到自己收到的下游需求，並依手邊庫存、欠交與在途貨物決定補貨。追單、交期與資訊逐級傳遞，可能讓上游的訂單更不穩定；也請留意庫存與缺貨成本的取捨。", "Each role sees its downstream demand and decides replenishment based on stock, backlog, and pipeline. Order chasing, lead times, and information passed stage by stage can make upstream orders less stable. Watch the trade-off between inventory and shortage costs."],
+        ["本週需求與供應鏈", "This week's demand and supply chain"],
+        ["你的補貨決策", "Your replenishment decision"],
+        ["本週下單量（箱）", "Order quantity this week (cases)"],
+        ["確認下單並結束本週", "Place order and end week"],
+        ["供應鏈即時運作圖", "Live supply-chain flow"],
+        ["需求訊號往上游、啤酒實物流往下游；數值隨每週回合更新。", "Demand signals move upstream; beer shipments move downstream. Values update each week."],
+        ["遊戲中趨勢｜隨週次即時更新", "Live trends | updated each week"],
+        ["單週需求波形｜沿供應鏈逐站傳遞", "Weekly demand wave | transmitted stage by stage"],
+        ["檢視週次", "View week"],
+        ["顧客需求與向上游下單", "Customer demand and upstream orders"],
+        ["庫存與欠交", "Inventory and backlog"],
+        ["累積持有／缺貨成本", "Cumulative holding / shortage cost"],
+        ["每週淨獲利", "Weekly net profit"],
+        ["牛鞭效應｜訂單波動逐級放大", "Bullwhip effect | order variation grows by stage"],
+        ["累積營運成本", "Cumulative operating cost"],
+        ["四角色每週淨獲利", "Weekly net profit by role"],
+        ["四角色營運與財務復盤", "Operations and financial review by role"],
+        ["下載 PNG", "Download PNG"],
+        ["下載全部圖表（總覽 PNG）", "Download all charts (overview PNG)"],
+        ["下載 CSV", "Download CSV"],
+        ["重開遊戲", "Restart game"],
+        ["零售商", "Retailer"],
+        ["批發商", "Wholesaler"],
+        ["配送商", "Distributor"],
+        ["製造商", "Manufacturer"],
+        ["需求突增", "Demand surge"],
+        ["促銷脈衝", "Promotional pulse"],
+        ["緩步波動", "Gradual fluctuation"],
+        ["穩定需求", "Steady demand"],
+        ["策略參考量", "Suggested order"],
+        ["電腦策略", "Computer strategy"],
+        ["週次", "Week"],
+        ["對顧客需求", "vs. customer demand"],
+        ["收到需求變異數比", "Demand-received variance ratio"],
+        ["你的角色", "Your role"],
+        ["本人", "You"],
+        ["單週尖峰不會觸發區段標註。", "A single-week spike does not trigger a shaded segment."],
+        ["本人庫存", "Your inventory"],
+        ["本人欠交", "Your backlog"],
+        ["本人每週淨獲利", "Your weekly net profit"],
+        ["本人累積持有成本", "Your cumulative holding cost"],
+        ["本人累積缺貨成本", "Your cumulative shortage cost"],
+        ["本週需求", "This week's demand"],
+        ["需求與訂單", "Demand and orders"],
+        ["到貨", "received"],
+        ["收到需求", "demand received"],
+        ["在途／生產中", "in transit / in production"],
+        ["庫存", "inventory"],
+        ["欠交", "backlog"],
+        ["回合", "Round"],
+        ["箱", "cases"],
+        ["需求", "Demand"],
+        ["收到需求", "Demand received"],
+        ["你的下游訂單", "Your downstream order"],
+        ["本週需求", "Demand this week"],
+        ["庫存", "Inventory"],
+        ["欠交", "Backlog"],
+        ["在途", "In transit"],
+        ["下單", "Order"],
+        ["到貨", "Received"],
+        ["本週出貨", "Shipped this week"],
+        ["累積成本", "Cumulative cost"],
+        ["顧客需求", "Customer demand"],
+        ["顧客支出", "Customer spending"],
+        ["全場完成", "Game complete"],
+        ["進行中", "In progress"],
+        ["放大開始", "Amplification begins"],
+        ["持續擴大", "Continued amplification"],
+        ["持續高波動", "Sustained high variation"],
+        ["波動回落", "Variation recedes"],
+        ["未定義", "Undefined"],
+        ["貨幣單位", "currency units"],
+        ["本週下游訂單", "Downstream order this week"],
+        ["本人", "You"],
+        ["你操作", "You control"],
+        ["你", "You"],
+        ["電腦", "Computer"],
+        ["進貨／生產", "Purchase / production"],
+        ["總成本", "Total cost"],
+        ["淨獲利", "Net profit"],
+        ["毛利", "Gross profit"],
+        ["開局設定", "Initial settings"],
+        ["顧客需求 · 基準", "Customer demand · baseline"],
+        ["向上游下單", "upstream order"],
+        ["需求訊號向上游", "Demand signal upstream"],
+        ["貨物／出貨向下游", "Shipments downstream"],
+        ["最終顧客", "Final customer"],
+        ["完整復盤", "Full review"],
+        ["局部資訊情境", "Local-information scenario"],
+        ["完整資訊情境", "Full-information scenario"],
+        ["遊戲已結束", "Game ended"],
+        ["播放中", "Playing"],
+        ["暫停", "Pause"],
+        ["播放完成", "Playback complete"],
+        ["最後一週", "Final week"],
+        ["播放逐週需求波形", "Play weekly demand wave"],
+        ["請輸入 0 至 999 之間的整數。", "Enter an integer from 0 to 999."],
+        ["樣本未達 2 週或顧客需求變異數為 0，整場訂單放大比暫不定義；圖中仍顯示實際下單歷史。", "Fewer than 2 weeks of data or zero customer-demand variance; the order amplification ratio is undefined. Actual orders are still shown."],
+        ["已選擇", "Selected"],
+        ["劇本", "Scenario"],
+        ["模擬完成", "Simulation complete"],
+        ["只顯示", "Showing only"],
+        ["資訊", "information"],
+        ["策略參考量：", "Suggested order: "]
+        ,["SUPPLY CHAIN SIMULATION", "SUPPLY CHAIN SIMULATION"]
+        ,["需求突增 · 第 5 週起由 4 升至 8", "Demand surge · from week 5, rises from 4 to 8"]
+        ,["促銷脈衝 · 單週高峰再回落", "Promotion pulse · one-week peak then recedes"]
+        ,["緩步波動 · 逐週升降", "Gradual fluctuation · rises and falls weekly"]
+        ,["穩定需求 · 每週 4", "Steady demand · 4 per week"]
+        ,["8 週 · 快速體驗", "8 weeks · Quick play"]
+        ,["12 週 · 建議教學", "12 weeks · Recommended"]
+        ,["16 週", "16 weeks"]
+        ,["20 週", "20 weeks"]
+        ,["24 週 · 完整觀察", "24 weeks · Extended"]
+        ,["你好，", "Hello, "]
+        ,["你的角色：", "Your role: "]
+        ,["四個角色資訊同步顯示｜零售商 → 批發商 → 配送商 → 製造商", "All roles shown | Retailer → Wholesaler → Distributor → Manufacturer"]
+        ,["只顯示", "Showing only"]
+        ,["資訊；不顯示其他角色狀態或操作。", " information; other roles' states and actions are hidden."]
+        ,["你的生產決策", "Your production decision"]
+        ,["本週生產計畫量（箱）", "Production plan this week (cases)"]
+        ,["本週下單量（箱）", "Order quantity this week (cases)"]
+        ,["本週箱數分布", "This week's case quantities"]
+        ,["電腦 · 補貨策略", "Computer · replenishment policy"]
+        ,["局部資訊 · 本人角色", "Local information · your role"]
+        ,["尚未下單", "No order placed"]
+        ,["本週下單量代表製造計畫；生產需 2 週，完工後才能供應下游。", "This week's quantity is the production plan. Production takes 2 weeks before goods can be supplied downstream."]
+        ,["本週向製造商下單後需 2 週生產、再 2 週運輸，總交期 4 週；下游需求訊號下一週上傳。", "Orders to the Manufacturer take 2 weeks to produce plus 2 weeks in transit (4 weeks total); downstream demand is relayed next week."]
+        ,["本週下單量決定向上游提出的補貨單，並成為下一週上游角色收到的需求訊號。", "This order replenishes from upstream and becomes the upstream role's demand signal next week."]
+        ,["訂單需 2 週生產＋2 週運輸，總交期 4 週。", "Orders take 2 weeks to produce plus 2 weeks in transit (4 weeks total)."]
+        ,["你的生產計畫 2 週後完工，再依出貨與下游運輸進度處理。", "Your production plan completes after 2 weeks, then ships and follows the downstream transit schedule."]
+        ,["本角色訂單 2 週後到貨；下游訂單訊號下一週傳到上游。", "This role's orders arrive in 2 weeks; downstream orders reach upstream next week."]
+        ,["策略參考量：", "Suggested order: "]
+        ,["依預測需求補足目標庫存，僅供參考。", "For reference only; replenishes toward forecast target stock."]
+        ,["請自行輸入下單量", "Enter your own order"]
+        ,["電腦製造策略：", "Computer production policy: "]
+        ,["電腦策略：", "Computer policy: "]
+        ,["這是固定的基準策略，非最佳化預測。", "This is a fixed baseline policy, not an optimized forecast."]
+        ,["本週需求", "Demand this week"]
+        ,["週次 ", "Week "]
+        ,["週次", "Week"]
+        ,["上週生產計畫", "Previous production plan"]
+        ,["上週下單", "Previous order"]
+        ,["上週生產計畫", "Previous production plan"]
+        ,["生產管線", "Production pipeline"]
+        ,["生產中", "In production"]
+        ,["配送中", "In transit"]
+        ,["製造商第 ", "Manufacturer shipped in week "]
+        ,["製造商出貨在途量", "Manufacturer shipments in transit"]
+        ,["製造商本週完成生產量", "Manufacturer production completed this week"]
+        ,["製造商未完成生產計畫量", "Manufacturer pending production plan"]
+        ,["啤酒遊戲", "Beer Game"]
+        ,["下載全部圖表（總覽 PNG）", "Download all charts (overview PNG)"]
+        ,["模擬完成！你的角色", "Simulation complete! Your role"]
+        ,["在第 ", " in week "]
+        ,["下單 ", " ordered "]
+        ,["下方已開放完整供應鏈教學復盤。", "The complete supply-chain review is available below."]
+        ,["遊戲已結束。上方保留你在最後一週可見的資訊；下方已開放四個角色的完整教學復盤。", "The game has ended. Your final-week view remains above; the full four-role teaching review is now available below."]
+        ,["遊戲已結束。上方保留最後一週的角色資訊；下方為完整教學復盤。", "The game has ended. The final-week role view remains above; the complete teaching review is below."]
+        ,["局部資訊情境｜遊戲中僅顯示本人角色資訊。遊戲已結束，以下開放完整供應鏈資料作教學復盤。", "Local-information scenario | Only your role was visible during play. The complete supply-chain data is now available for review."]
+        ,["完整資訊情境｜遊戲中可查看四個角色的營運資訊；以下為同一場遊戲的完整教學復盤。", "Full-information scenario | All four roles were visible during play; the data below reviews this simulation."]
+        ,["完整資訊：圖表顯示終端顧客需求與四角色各週實際下單量。", "Full information: charts show customer demand and actual weekly orders for all four roles."]
+        ,["完整復盤：圖表含終端顧客需求與四角色歷史。", "Full review: charts include customer demand and all four roles' histories."]
+        ,["零售商收到的顧客需求 · 外生需求基準", "Customer demand received by Retailer · exogenous baseline"]
+        ,["你的下游訂單 · 顧客需求", "Your downstream order · customer demand"]
+        ,["本週不受前一角色下單影響", "This week's value is independent of the previous role's order"]
+        ,["你操作零售商，這是直接收到的顧客訂單", "You control the Retailer; this is the customer order received directly"]
+        ,["顧客需求 · 基準", "Customer demand · baseline"]
+        ,["本週不受前一角色下單影響", "Not affected by the previous role's order this week"]
+        ,["變異放大比", "Variance amplification ratio"]
+        ,["累積持有成本", "Cumulative holding cost"]
+        ,["累積缺貨成本", "Cumulative shortage cost"]
+        ,["終端顧客支出：", "Final-customer spending: "]
+        ,["本局教學價格（貨幣單位／箱）：", "Teaching prices for this game (currency units per case): "]
+        ,["製造成本", "Production cost"]
+        ,["製造商售價", "Manufacturer price"]
+        ,["配送商售價", "Distributor price"]
+        ,["批發商售價", "Wholesaler price"]
+        ,["零售價", "Retail price"]
+        ,["顧客支出", "Customer spending"]
+        ,["全場完成", "Game complete"]
+        ,["已選擇", "Selected"]
+        ,["劇本", "scenario"]
+        ,["毛利＝營收－貨品成本；總成本＝貨品成本＋持有成本＋缺貨成本；淨獲利＝營收－總成本。進貨成本依本週收到上游貨品數計，製造成本依製造商本週實際出貨數計；這是簡化的教學現金口徑，未按存貨配比銷貨成本或計利息。最終顧客支出＝零售商實際出貨箱數 × 零售價；上游角色營收是供應鏈內部交易，不可加總後當作顧客支出。", "Gross profit = revenue − goods cost; total cost = goods cost + holding + shortage cost; net profit = revenue − total cost. Purchase cost is based on upstream receipts; Manufacturer production cost on actual shipments. This is a simplified teaching cash convention, without inventory-matched COGS or interest. Final-customer spending = actual Retailer shipments × retail price; internal supply-chain revenue is not the same as customer spending."]
+        ,["需求與訂單訊號向上游傳遞；啤酒實物流向下游。節點顯示本週需求、訂單、庫存、欠交、在途、到貨與出貨。", "Demand and order signals travel upstream; beer flows downstream. Nodes show this week's demand, orders, stock, backlog, pipeline, receipts, and shipments."]
+        ,["每週需求訊號紀錄", "Weekly demand-signal history"]
+        ,["外生基準", "Exogenous baseline"]
+        ,["訂單／需求訊號向上游", "Order / demand signal upstream"]
+        ,["貨物／出貨向下游", "Goods / shipments downstream"]
+        ,["週次", "Week"]
+        ,["在途／生產中（箱）", "In transit / production (cases)"]
+        ,["需求量（箱）", "Demand quantity (cases)"]
+        ,["收到需求", "Demand received"]
+        ,["本週最高需求訊號", "Highest demand signal this week"]
+        ,["零售商收到的顧客需求 · 外生需求基準", "Customer demand received by Retailer · exogenous baseline"]
+        ,["你的下游訂單 · 顧客需求", "Your downstream order · customer demand"]
+        ,["局部資訊情境｜僅顯示你的下游訂單及本人角色資訊；其他角色的操作與狀態不會顯示。", "Local-information scenario | Only your downstream order and your role's data are visible; other roles' actions and states are hidden."]
+        ,["完整資訊情境｜遊戲中可查看四個角色的營運資訊；以下為同一場遊戲的完整教學復盤。", "Full-information scenario | All four roles are visible during play; the data below reviews this simulation."]
+        ,["模擬完成：", "Simulation complete: "]
+        ,["完整供應鏈教學復盤。", "The full supply-chain teaching review is below."]
+        ,["已播放至最後一週", "Playback reached the final week"]
+        ,["每週成本", "Weekly cost"]
+        ,["不向非零售商揭露", "not revealed to non-Retailers"]
+        ,["批", "batch"]
+        ,["教學現金口徑", "teaching cash convention"]
+        ,["內部交易", "internal transaction"]
+        ,["存貨配比", "inventory matching"]
+        ,["實際出貨箱數", "actual cases shipped"]
+        ,["商品成本", "goods cost"]
+        ,["生產期", "production lead time"]
+        ,["外生需求", "exogenous demand"]
+        ,["顧客需求基準", "customer-demand baseline"]
+        ,["放大門檻", "amplification threshold"]
+        ,["連續", "consecutive"]
+        ,["單週", "single week"]
+        ,["尖峰", "spike"]
+        ,["週數", "number of weeks"]
+        ,["個月", "months"]
+        ,["三週視窗", "three-week window"]
+        ,["重疊視窗", "overlapping windows"]
+        ,["暫不定義", "currently undefined"]
+        ,["已開放", "now available"]
+        ,["資料作", "data for"]
+        ,["圖表圖例", "chart legend"]
+        ,["點選", "select"]
+        ,["選擇需求波形週次", "Select demand-wave week"]
+        ,["訂單／生產放大比", "Order / production amplification ratio"]
+        ,["批發商訂單", "Wholesaler orders"]
+        ,["配送商訂單", "Distributor orders"]
+        ,["零售商訂單", "Retailer orders"]
+        ,["製造商訂單", "Manufacturer production plan"]
+        ,["製造商生產計畫", "Manufacturer production plan"]
+        ,["訂單放大比", "Order / production amplification ratio"]
+        ,["訂單牛鞭效應", "Order bullwhip effect"]
+        ,["下游需求逐週傳遞", "Downstream demand relayed week by week"]
+        ,["顧客需求劇本", "Customer-demand scenario"]
+        ,["本週箱數分布", "Case quantities this week"]
+        ,["顧客支出", "Customer spending"]
+        ,["所有角色", "all roles"]
+        ,["查看", "view"]
+        ,["至少兩週後計算訂單變異數比。", "Order variance ratio is calculated after at least two weeks."]
+        ,["持有／缺貨成本", "Holding / shortage cost"]
+        ,["完整復盤", "Full review"]
+        ,["局部視野", "Local view"]
+        ,["模擬週數", "Simulation length"]
+        ,["需求劇本", "Demand scenario"]
+        ,["價格設定", "Price settings"]
+        ,["資訊情境", "Information scenario"]
+        ,["不影響", "does not affect"]
+        ,["售價順序", "Price sequence"]
+        ,["製造商生產成本", "Manufacturer production cost"]
+        ,["單位生產成本", "Unit production cost"]
+        ,["下單量", "order quantity"]
+        ,["庫存／欠交／在途", "inventory / backlog / pipeline"]
+        ,["應輸入", "must enter"]
+        ,["有效範圍", "Valid range"]
+        ,["數值", "values"]
+        ,["價格", "price"]
+        ,["每箱", "per case"]
+        ,["完整資訊：", "Full information: "]
+        ,["局部資訊情境｜", "Local-information scenario | "]
+        ,["完整資訊情境｜", "Full-information scenario | "]
+        ,["價格已結算至最後一週", "Costs settled through final week"]
+        ,["進行中：", "In progress: "]
+        ,["模擬完成：", "Simulation complete: "]
+        ,["播放完成的每週需求波形；手動選週仍可隨時使用。", "Play the completed weekly demand wave; you can still select a week manually."]
+        ,["遊戲完成後可播放逐週需求變化。", "Weekly demand playback is available after the game."]
+        ,["每週需求波形會依實際遊戲歷史繪製。", "Weekly demand wave is drawn from actual game history."]
+        ,["完成第一週後，", "After completing week 1, "]
+        ,["會依實際遊戲歷史繪製。", " is drawn from actual game history."]
+        ,["每週訂單", "Weekly orders"]
+        ,["週變異數", "weekly variance"]
+        ,["訂單變異數", "order variance"]
+        ,["顧客需求變異數", "customer-demand variance"]
+        ,["目前放大比最高", "currently has the highest amplification ratio"]
+        ,["淡色區段須連續", "Shaded regions require consecutive"]
+        ,["個三週視窗", " three-week windows"]
+        ,["才標註", " to be annotated"]
+        ,["孤立尖峰不標示。", "Isolated spikes are not marked."]
+        ,["目前無連續", "No consecutive"]
+        ,["週樣本", "week samples"]
+        ,["分布與", "distribution and"]
+        ,["趨勢圖", "trend"]
+        ,["數量（箱）", "Quantity (cases)"]
+        ,["累積成本（成本點）", "Cumulative cost (cost points)"]
+        ,["每週淨獲利（貨幣單位）", "Weekly net profit (currency units)"]
+        ,["週次", "Week"]
+        ,["數量（箱）", "Quantity (cases)"]
+        ,["成本已結算至最後一週（期末在途貨物不計入本次成本）。", "Costs are settled through the final week (ending pipeline shipments are excluded)."]
+        ,["訂單牛鞭效應；虛線為可見需求基準，實線為實際下單量。", "Order bullwhip effect; dashed line is the visible demand baseline, solid lines are actual orders."]
+        ,["以角色顏色區分；實線為持有成本，虛線為欠交成本。", "Colors identify roles; solid lines are holding cost and dashed lines are shortage cost."]
+        ,["實線為期末庫存、虛線為期末欠交；兩者為不同狀態，非負值。", "Solid lines show ending inventory; dashed lines show ending backlog. These are separate non-negative values."]
+        ,["各角色每週營收扣除進貨／生產、持有及缺貨成本；局部情境僅顯示本人。", "Weekly revenue less purchase/production, holding, and shortage costs; local mode shows only your role."]
+        ,["營收－進貨／生產成本－持有成本－缺貨成本。", "Revenue − purchase/production cost − holding cost − shortage cost."]
+        ,["需求訊號往上游、啤酒實物流往下游；數值隨每週回合更新。", "Demand signals travel upstream and beer flows downstream; values update each week."]
+        ,["顧客需求進入", "Customer demand enters"]
+        ,["訂單／需求訊號向上游", "Orders / demand signals upstream"]
+        ,["貨物／出貨向下游", "Goods / shipments downstream"]
+        ,["啤酒／出貨　← 向下游", "Beer / shipments flow downstream ←"]
+        ,["需求／補貨訂單　→ 向上游", "Demand / replenishment orders flow upstream →"]
+        ,["需求與訂單訊號向上游傳遞；啤酒實物流向下游。節點顯示本週需求、訂單、庫存、欠交、在途、到貨與出貨。", "Demand and order signals travel upstream; beer flows downstream. Nodes show this week's demand, orders, stock, backlog, pipeline, receipts, and shipments."]
+        ,["局部資訊情境只會顯示本人角色資料；完成遊戲後才公開完整供應鏈波形。", "Local information shows only your role; the full supply-chain wave is revealed after the game."]
+        ,["每個節點是該週角色實際收到的需求；線條按零售商 → 批發商 → 配送商 → 製造商連接。", "Each node is the demand received by that role that week; stages connect Retailer → Wholesaler → Distributor → Manufacturer."]
+        ,["顧客需求與向上游下單", "Customer demand and upstream orders"]
+        ,["訂單牛鞭效應；虛線為可見需求基準，實線為實際下單量。", "Order bullwhip effect; dashed line is the visible demand baseline, solid lines are actual quantities."]
+        ,["顧客需求進入你的角色", "Downstream demand enters your role"]
+        ,["其他角色運作資訊隱藏", "Other roles' operations are hidden"]
+        ,["僅顯示你的資訊", "Only your information is shown"]
+        ,["啤酒向你運輸　←", "Beer shipments to you ←"]
+        ,["你的訂單向上游　→", "Your order upstream →"]
+        ,["各站實際收到的需求", "Demand received at each stage"]
+        ,["需求訊號沿供應鏈向上游傳遞", "Demand signals travel upstream through the supply chain"]
+        ,["各角色實際下單量", "Actual orders by role"]
+        ,["實線比較四角色實際下單量，虛線為終端顧客需求；淡色區段依連續週次判斷放大與回落。", "Solid lines compare actual order quantities for each role; the dashed line is final-customer demand. Shaded regions mark sustained amplification and receding variation."]
+        ,["放大指標＝各角色向上游訂單的週變異數 ÷ 終端顧客需求的週變異數；比值大於 1 表示訂單波動更大。少於 2 週或顧客需求變異數為 0 時顯示「—」。圖上用 3 週移動變異係數偵測波動；除連續 3 個重疊視窗高於顧客基準 1.35 倍外，觀察的 5 週內還須出現至少 3 次跨週訂單變化，才標註放大區段，避免單週尖峰觸發連續視窗。", "Amplification ratio = each role's weekly order variance ÷ final-customer demand variance; above 1 means orders vary more. Shown as — with fewer than 2 weeks or zero customer-demand variance. Shaded regions use a 3-week moving coefficient of variation and require three consecutive overlapping windows above 1.35× baseline plus at least 3 cross-week order changes in a 5-week observation window, avoiding isolated-spike alerts."]
+        ,["持有與欠交成本合計，依每週實際結算累積。", "Cumulative holding and backlog costs, settled from actual weekly results."]
+        ,["四角色營運與財務復盤", "Operations and financial review by role"]
+        ,["依供應鏈固定順序並排；財務結果依開局價格與實際出貨／到貨逐週計算。", "Roles are shown side by side in supply-chain order; finances use configured prices and actual weekly shipments and receipts."]
+        ,["Demand received變異數比", "Demand received variance ratio"]
+        ,["Demand變異係數", "Demand coefficient of variation"]
+        ,["平均訂單", "Average order"]
+        ,["期末Inventory", "Ending inventory"]
+        ,["期末Backlog", "Ending backlog"]
+        ,["進貨／生產成本", "Purchase / production cost"]
+        ,["Gross profit＝營收－進貨／生產成本；總成本＝進貨／生產成本＋持有成本＋缺貨成本；淨獲利＝營收－總成本。進貨成本依本週收到上游貨品數計，製造成本依製造商本週實際出貨數計；這是簡化的教學現金口徑，未按存貨配比銷貨成本或計利息。最終顧客支出＝零售商實際出貨箱數 × 零售價；上游角色營收是供應鏈內部交易，不可加總後當作顧客支出。", "Gross profit = revenue − purchase/production cost. Total cost = purchase/production + holding + shortage cost. Net profit = revenue − total cost. Purchase cost is based on actual receipts; manufacturing cost on actual Manufacturer shipments, a simplified teaching cash convention without inventory-matched COGS or interest. Final-customer spending = actual Retailer shipments × retail price; internal upstream revenue must not be added as customer spending."]
+        ,["Demand變異係數＝標準差 ÷ 平均Demand；平均Demand為 0 時顯示「—」。期末Inventory／Backlog為最後已完成週的狀態。持有成本＝各週期末Inventory × 1；缺貨成本＝各週期末Backlog × 2，兩者為財務Total cost之外的營運成本。", "Demand coefficient of variation = standard deviation ÷ mean demand; shown as — when mean demand is zero. Ending inventory/backlog is the final completed week's state. Holding cost = each week's ending inventory × 1; shortage cost = ending backlog × 2. These operating costs are separate from goods cost."]
+        ,["下游需求逐週傳遞；這份歷史也是上方圖表與 CSV 的資料來源。", "Downstream demand is relayed week by week; this history also feeds the charts and CSV."]
+        ,["週次", "Week"]
+        ,["最終顧客支出：", "Final-customer spending: "]
+        ,["供應鏈角色", "Supply-chain role"]
+        ,["訂單放大比", "Order amplification ratio"]
+        ,["顧客需求基準", "Customer-demand baseline"]
+        ,["局部資訊情境｜遊戲中僅顯示本人角色資訊。遊戲已結束，以下開放完整供應鏈資料作教學復盤。", "Local-information scenario | Only your role was visible during play. The full supply-chain data is now available for review."]
+        ,["局部資訊情境只會顯示本人角色資料；完成遊戲後才公開完整供應鏈波形。", "Local information shows only your role; the full supply-chain wave is revealed after the game."]
+        ,["只顯示製造商資訊；不顯示其他角色狀態或操作。", "Showing only Manufacturer information; other roles' states and actions are hidden."]
+        ,["各角色實際收到的需求", "Demand received by each role"]
+        ,["各角色每週實際下單量", "Actual weekly orders by role"]
+        ,["各角色向上游下單", "Orders placed upstream by role"]
+        ,["需求訊號沿供應鏈向上游傳遞　零售商 → 批發商 → 配送商 → 製造商", "Demand signals travel upstream through the supply chain | Retailer → Wholesaler → Distributor → Manufacturer"]
+        ,["每週需求波形", "Weekly demand wave"]
+        ,["本週顧客需求基準", "Customer-demand baseline this week"]
+        ,["每個節點是該週角色實際收到的需求", "Each node is the demand received by the role that week"]
+        ,["同週向上游下單量", "upstream order quantity for the same week"]
+        ,["虛線為同週終端顧客需求基準", "Dashed line is the final-customer demand baseline for that week"]
+        ,["本人需求／決策", "Your demand / decision"]
+        ,["本人收到需求", "Demand received by you"]
+        ,["本人向上游下單", "Your upstream order"]
+        ,["本人生產計畫", "Your production plan"]
+        ,["訂單變異數 ÷ 顧客需求變異數計算，", "Order variance ÷ customer-demand variance; "]
+        ,["目前放大比最高", "currently has the highest amplification ratio"]
+        ,["淡色區段須連續 3 個三週視窗超過 1.35× 才標註。", "shaded regions require 3 consecutive three-week windows above 1.35×."]
+        ,["樣本未達 2 週或顧客需求變異數為 0，整場訂單放大比暫不定義；圖中仍顯示實際下單歷史。", "With fewer than 2 weeks or zero customer-demand variance, the overall ratio is undefined; actual order history remains visible."]
+        ,["期末在途貨物不計入本次成本。", "Ending pipeline shipments are excluded from cost."]
+        ,["完整資訊：圖表顯示終端顧客需求與四角色各週實際下單量。", "Full information: charts show customer demand and actual weekly orders for all four roles."]
+        ,["完整復盤：圖表含終端顧客需求與四角色歷史。", "Full review: charts include customer demand and all four roles' histories."]
+        ,["局部資訊：圖表僅含本人下游需求、訂單、庫存、欠交與成本；不使用其他角色數列。", "Local information: charts include only your downstream demand, orders, stock, backlog, and costs; no other roles' data is used."]
+        ,["放大指標＝各角色向上游訂單的週變異數 ÷ 終端顧客需求的週變異數；比值大於 1 表示訂單波動更大。少於 2 週或顧客需求變異數為 0 時顯示「—」。圖上用 3 週移動變異係數偵測波動；除連續 3 個重疊視窗高於顧客基準 1.35 倍外，觀察的 5 週內還須出現至少 3 次跨週訂單變化，才標註放大區段，避免單週尖峰觸發連續視窗。", "Amplification ratio = each role's weekly order variance ÷ final-customer demand variance; above 1 means orders vary more. Shown as — with fewer than 2 weeks or zero customer-demand variance. Shaded regions use a 3-week moving coefficient of variation and require three consecutive overlapping windows above 1.35× baseline plus at least 3 cross-week order changes in a 5-week observation window, avoiding isolated-spike alerts."]
+        ,["每週淨獲利趨勢", "Weekly net profit trend"]
+        ,["累積持有成本", "Cumulative holding cost"]
+        ,["累積缺貨成本", "Cumulative shortage cost"]
+        ,["零售商售價", "Retailer price"]
+        ,["上游角色營收", "Upstream-role revenue"]
+        ,["不把供應鏈內部銷售重複加總。", "Internal supply-chain sales are not counted again."]
+        ,["週 ·", "weeks ·"]
+        ,["週起", "week starts"]
+        ,["逐週播放", "Play week by week"]
+        ,["▶ 逐週播放", "▶ Play week by week"]
+        ,["已暫停於", "Paused at"]
+        ,["播放中：", "Playing: "]
+        ,["已播放至最後一週", "Played through the final week"]
+        ,["放大開始", "Amplification begins"]
+        ,["持續高波動", "Sustained high variation"]
+        ,["波動回落", "Variation recedes"]
+        ,["顧客需求 · 基準", "Customer demand · baseline"]
+        ,["向上游下單", "orders upstream"]
+        ,["訂單 3.00×", "orders 3.00×"]
+        ,["啤酒遊戲", "Beer Game"]
+        ,["模擬已完成", "Simulation complete"]
+        ,["完整供應鏈教學復盤", "full supply-chain teaching review"]
+        ,["客戶支出", "Customer spending"]
+        ,["平均需求", "Average demand"]
+        ,["營收", "Revenue"]
+        ,["成本", "Cost"]
+        ,["營運成本", "Operating cost"]
+        ,["本週", "This week"]
+        ,["下游需求", "Downstream demand"]
+        ,["收到", "Received"]
+        ,["實際", "Actual"]
+        ,["最高", "Highest"]
+        ,["變異數", "variance"]
+        ,["變異係數", "coefficient of variation"]
+        ,["比值大於", "Ratio above"]
+        ,["表示", "means"]
+        ,["波動更大", "greater variation"]
+        ,["顯示", "show"]
+        ,["還須出現至少", "also requires at least"]
+        ,["跨週訂單變化", "cross-week order changes"]
+        ,["觀察的", "within a"]
+        ,["週內", "week window"]
+        ,["才標註", "to mark"]
+        ,["圖中仍顯示", "The chart still shows"]
+        ,["實際下單歷史", "actual order history"]
+        ,["終端顧客需求的", "final-customer demand"]
+        ,["顧客需求變異數", "customer-demand variance"]
+        ,["目前放大比最高", "currently has the highest amplification ratio"]
+        ,["淡色區段須連續", "Shaded regions require consecutive"]
+        ,["個三週視窗", "three-week windows"]
+        ,["超過", "above"]
+        ,["週。", "weeks."]
+        ,["週；", "weeks;"]
+        ,["週，", "weeks, "]
+        ,["週：", "week: "]
+        ,["箱。", "cases."]
+        ,["箱（", "cases ("]
+        ,["（箱）", "(cases)"]
+        ,["／箱", "/case"]
+        ,["—", "—"]
+        ,["模擬已完成", "Simulation complete"]
+        ,["需 2 週生產", "requires 2 weeks of production"]
+        ,["第 4 週到貨", "arrives after 4 weeks"]
+        ,["生產計畫", "production plan"]
+        ,["請輸入", "Enter"]
+        ,["之間的整數", "as an integer"]
+        ,["你的需求", "Your demand"]
+        ,["你的訂單", "Your order"]
+        ,["You的Demand", "Your demand"]
+        ,["學生", "Student"]
+        ,["選擇需求波形週次", "Select demand-wave week"]
+        ,["完成第一週後可選擇", "Available after completing week 1"]
+        ,["完成第一週後，", "After completing week 1, "]
+        ,["訂單變異", "order variation"]
+        ,["終端顧客需求", "final-customer demand"]
+        ,["顧客需求基準", "customer-demand baseline"]
+        ,["持有成本", "holding cost"]
+        ,["欠交成本", "backlog cost"]
+        ,["期末在途貨物", "ending pipeline shipments"]
+        ,["資訊情境", "Information scenario"]
+        ,["成本已結算", "Costs settled"]
+        ,["圖表下載失敗", "Chart download failed"]
+      ].sort((a, b) => b[0].length - a[0].length);
+      const EN_FALLBACK = [
+        ["需求波形", "demand wave"], ["生產計畫", "production plan"], ["顧客支出", "customer spending"],
+        ["本人", "you"], ["狀態", "state"], ["操作", "actions"], ["決策", "decision"],
+        ["名稱", "name"], ["僅", "only"], ["其餘", "remaining"], ["尚未", "not yet"],
+        ["本週總成本", "total cost this week"], ["含", "including"], ["合計", "total"],
+        ["視野", "view"], ["尖峰", "spike"], ["觸發", "trigger"], ["區段標註", "segment annotation"],
+        ["顯示", "show"], ["隱藏", "hidden"], ["比較", "compare"], ["只", "only"],
+        ["出貨", "shipped"], ["發出", "placed"], ["週結算", "week settled"],
+        ["需求與訂單", "demand and orders"], ["收到的需求", "demand received"],
+        ["本週下游訂單", "downstream order this week"], ["你的下游訂單", "your downstream order"],
+        ["角色的操作", "role actions"], ["其他角色", "other roles"], ["其他", "other"],
+        ["匿名節點表示", "anonymous nodes represent"], ["匿名節點", "anonymous nodes"],
+        ["進入", "enters"], ["供貨", "supply"], ["本情境", "this scenario"],
+        ["顧客需求基準", "customer-demand baseline"], ["實際收到", "actually received"],
+        ["繪製波形", "draw the wave"], ["訂單趨勢", "order trend"],
+        ["庫存與欠交趨勢", "inventory and backlog trend"],
+        ["累積持有與缺貨成本趨勢", "cumulative holding and shortage cost trend"],
+        ["每週淨獲利趨勢", "weekly net profit trend"], ["依實際遊戲歷史繪製", "uses actual game history"],
+        ["本週決策下單", "order decision this week"], ["至", "to"],
+        ["缺貨", "shortage"], ["向", "to"], ["出貨向下游", "ships downstream"],
+        ["製造商", "Manufacturer"], ["配送商", "Distributor"], ["批發商", "Wholesaler"], ["零售商", "Retailer"],
+        ["最終顧客", "final customer"], ["終端顧客", "final customer"], ["下游需求", "downstream demand"],
+        ["上游訂單", "upstream order"], ["下游訂單", "downstream order"], ["訂單量", "order quantity"],
+        ["累積持有", "cumulative holding"], ["累積缺貨", "cumulative shortage"], ["持有成本", "holding cost"],
+        ["缺貨成本", "shortage cost"], ["營運成本", "operating cost"], ["總成本", "total cost"],
+        ["淨獲利", "net profit"], ["毛利", "gross profit"], ["營收", "revenue"], ["成本", "cost"],
+        ["變異數", "variance"], ["變異係數", "coefficient of variation"], ["變異", "variation"],
+        ["放大比", "amplification ratio"], ["放大", "amplification"], ["波動", "variation"],
+        ["在途貨物", "pipeline shipments"], ["在途", "in transit"], ["生產管線", "production pipeline"],
+        ["生產中", "in production"], ["配送中", "in transit"], ["期末", "ending"], ["庫存", "inventory"],
+        ["欠交", "backlog"], ["收到", "received"], ["到貨", "received"], ["出貨", "shipment"],
+        ["實際", "actual"], ["需求", "demand"], ["訂單", "order"], ["下單", "place order"],
+        ["顧客", "customer"], ["角色", "role"], ["上游", "upstream"], ["下游", "downstream"],
+        ["訊號", "signal"], ["資料", "data"], ["歷史", "history"], ["圖表", "chart"],
+        ["波形", "wave"], ["復盤", "review"], ["完整", "full"], ["局部", "local"],
+        ["資訊", "information"], ["情境", "scenario"], ["模擬", "simulation"], ["遊戲", "game"],
+        ["變化", "change"], ["趨勢", "trend"], ["指標", "metric"], ["基準", "baseline"],
+        ["平均", "average"], ["標準差", "standard deviation"], ["數量", "quantity"],
+        ["每週", "weekly"], ["週次", "week"], ["週", "week"], ["箱", "cases"],
+        ["播放", "playback"], ["暫停", "pause"], ["結束", "end"], ["完成", "complete"],
+        ["開始", "start"], ["顯示", "show"], ["比較", "compare"], ["圖中", "in the chart"],
+        ["各站", "each stage"], ["各角色", "each role"], ["四角色", "four roles"],
+        ["最後", "final"], ["本週", "this week"], ["上週", "last week"], ["預計", "planned"],
+        ["預測", "forecast"], ["策略", "policy"], ["參考", "reference"], ["建議", "suggested"],
+        ["說明", "description"], ["手冊", "manual"], ["下載", "download"], ["總覽", "overview"],
+        ["維持", "keep"], ["順序", "order"], ["固定", "fixed"], ["提供", "provide"],
+        ["不會", "does not"], ["不", "not"], ["及", "and"], ["與", "and"], ["為", "is"],
+        ["的", ""], ["第", "Week"], ["起", "from"], ["：", ": "], ["／", " / "], ["（", " ("], ["）", ")"]
+      ].sort((a, b) => b[0].length - a[0].length);
+
+      function translateFallback(text) {
+        return text.replace(/[\u3400-\u9fff]+/g, (run) => {
+          let translated = run;
+          for (const [source, target] of EN_FALLBACK) translated = translated.split(source).join(` ${target} `);
+          return translated.replace(/\s+/g, " ").trim();
+        });
+      }
+
+      function translateText(value) {
+        let text = value;
+        if (language === "en") {
+          text = text.replace(/需求突增 · 第 5 週起由 4 升至 8/g, "Demand surge · from week 5, rises from 4 to 8")
+            .replace(/模擬完成！你的角色 (.+?) 在第 (\d+) 週下單 (\d+) 箱。下方已開放完整供應鏈教學復盤。/g, "Simulation complete! $1 ordered $3 cases in week $2. The full supply-chain review is below.")
+            .replace(/第 (\d+) 週結算：(.+?) 發出 (\d+) 箱訂單，出貨 (\d+) 箱；期末庫存 (\d+) 箱、欠交 (\d+) 箱。本週總成本（含進貨／生產、持有與缺貨）([\d,.]+)。/g, "Week $1 settled: $2 ordered $3 cases and shipped $4; ending inventory $5 cases, backlog $6. Total cost this week (goods, holding, and shortage): $7.")
+            .replace(/確認下單並結束第 (\d+) 週 →/g, "Place order and end week $1 →")
+            .replace(/尚未偵測到持續放大；單週尖峰不會觸發區段標註。/g, "No sustained amplification detected; a single-week spike does not trigger a shaded segment.")
+            .replace(/未偵測到持續放大；單週尖峰不會觸發區段標註。/g, "No sustained amplification detected; a single-week spike does not trigger a shaded segment.")
+            .replace(/完成第一週後，遊戲中(.+?)訂單趨勢會依實際遊戲歷史繪製。/g, "After week 1, the $1 order trend uses actual game history.")
+            .replace(/完成第一週後，遊戲中(.+?)庫存與欠交趨勢會依實際遊戲歷史繪製。/g, "After week 1, the $1 inventory and backlog trend uses actual game history.")
+            .replace(/完成第一週後，遊戲中(.+?)累積持有與缺貨成本趨勢會依實際遊戲歷史繪製。/g, "After week 1, the $1 cumulative holding and shortage cost trend uses actual game history.")
+            .replace(/完成第一週後，遊戲中(.+?)每週淨獲利趨勢會依實際遊戲歷史繪製。/g, "After week 1, the $1 weekly net profit trend uses actual game history.")
+            .replace(/播放中：第 (\d+) \/ (\d+) 週；可手動選擇週次。/g, "Playing: week $1 / $2; manual week selection is available.")
+            .replace(/已暫停於第 (\d+) 週。/g, "Paused at week $1.")
+            .replace(/已播放至最後一週（第 (\d+) 週）。/g, "Played through the final week (week $1).")
+            .replace(/已播放至最後一週。/g, "Played through the final week.")
+            .replace(/局部資訊｜第 (\d+) 週只比較本人(.+?)收到的需求與向上游下單；其他角色資料與節點不顯示。顧客需求基準不向非零售商揭露。/g, "Local information | Week $1 compares only your $2 demand and upstream order; other roles' data and nodes are hidden. The customer-demand baseline is not shown to non-Retailers.")
+            .replace(/第 (\d+) 週實際需求傳遞波形。節點顯示各角色收到的需求；下方另列同週向上游下單量。虛線為同週終端顧客需求基準；遊戲結束後完整復盤。/g, "Week $1 actual demand-transmission wave. Nodes show demand received by each role; upstream orders for the same week are listed below. Dashed line is the final-customer demand baseline; the full review is available after play.")
+            .replace(/全場完成 (\d+) \/ (\d+) 週。以訂單變異數 ÷ 顧客需求變異數計算，(.+)目前放大比最高（([\d.]+)×）；淡色區段須連續 3 個三週視窗超過 1.35× 才標註。/g, "Game complete: $1 / $2 weeks. Using order variance ÷ customer-demand variance, $3 has the highest amplification ratio ($4×); shaded regions require 3 consecutive 3-week windows above 1.35×.")
+            .replace(/第\s*(\d+)\s*週起/g, "from week $1")
+            .replace(/第\s*(\d+)\s*週：/g, "Week $1: ")
+            .replace(/第\s*(\d+)\s*\/\s*(\d+)\s*週/g, "Week $1 / $2 weeks")
+            .replace(/第\s*(\d+)\s*週/g, "Week $1");
+          for (const [source, target] of EN_TEXT) text = text.split(source).join(target);
+          text = text.replace(/Week\s*(\d+)\s*week/g, "Week $1");
+          text = translateFallback(text);
+        } else {
+          text = text.replace(/from week\s*(\d+)/g, "第 $1 週起")
+            .replace(/Week\s*(\d+)\s*\/\s*(\d+)\s*weeks/g, "第 $1 / $2 週")
+            .replace(/Week\s*(\d+):/g, "第 $1 週：")
+            .replace(/Week\s*(\d+)/g, "第 $1 週");
+          const reverseTranslations = [...EN_TEXT].sort((a, b) => b[1].length - a[1].length);
+          for (const [source, target] of reverseTranslations) {
+            const escaped = target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const startsWithWord = /^[A-Za-z]/.test(target);
+            const endsWithWord = /[A-Za-z]$/.test(target);
+            text = text.replace(new RegExp(`${startsWithWord ? "\\b" : ""}${escaped}${endsWithWord ? "\\b" : ""}`, "g"), source);
+          }
+        }
+        return text;
+      }
+
+      function setManualContent() {
+        $("manual-content").innerHTML = language === "en"
+          ? `<h3>Beer Game basics</h3><p>This simulation models a four-stage supply chain: Retailer → Wholesaler → Distributor → Manufacturer. Customer demand enters at the Retailer; order signals travel upstream while beer travels downstream. Delays and local decisions can amplify order variation (the bullwhip effect).</p><h3>Initial assumptions and timing</h3><p>Each round is one week. All roles start with 12 cases and no backlog. Receive due shipments first, then fulfill demand (old backlog first), then place an order. Retailer and Wholesaler replenishment arrives after 2 weeks. A Manufacturer production plan completes after 2 weeks, then ships and takes 2 more weeks in transit. Upstream order signals arrive the following week, so a Distributor order takes about 5 weeks to arrive: 1 week for information transfer, 2 for production, and 2 for transit. Unfilled demand is backlogged. Holding cost: 1 per case/week; backlog cost: 2 per case/week. Supplier capacity is unlimited. Order quantities are integer cases from 0 to 999.</p><h3>Financial assumptions</h3><p>Prices are configured before play and must not decrease upstream-to-downstream. Role revenue is based on actual shipments. Purchase cost is based on arrivals; Manufacturer production cost is based on actual shipments. Net profit = revenue − goods cost − holding cost − shortage cost. Final-customer spending is Retailer shipments × Retailer selling price; internal supply-chain sales are not added again.</p><h3>Reading the charts</h3><p><strong>Demand and upstream orders:</strong> compare each role's actual order series with the customer-demand baseline. The variance ratio is order variance divided by customer-demand variance. Shaded regions require sustained multi-week signals, not a single spike.</p><p><strong>Weekly demand wave:</strong> select a completed week to compare demand received at each stage and the corresponding upstream order. Playback steps through weeks and stops at the last one.</p><p><strong>Operations bars and flow:</strong> bars show demand, ending inventory, backlog, and pipeline in cases. The flow diagram distinguishes upstream information from downstream shipments; production and transit quantities are shown separately when relevant.</p><p><strong>Cost and profit:</strong> cumulative operating-cost charts show holding and shortage costs; weekly profit charts show revenue minus goods and operating costs. During a local-information game only your role is shown; the full chain appears in the completed review.</p><p><strong>CSV / PNG:</strong> CSV exports the actual weekly history. PNG buttons export the displayed chart at presentation resolution; the overview button combines the result charts into one image.</p>`
+          : `<h3>Beer Game 基本原理</h3><p>本模擬包含四個供應鏈階段：零售商 → 批發商 → 配送商 → 製造商。顧客需求由零售商接收；訂單訊號向上游傳遞，啤酒向下游運輸。交期與局部決策可能放大訂單波動（牛鞭效應）。</p><h3>期初假設與週期</h3><p>每回合為一週。所有角色以 12 箱庫存、零欠交開始。每週先收取到期貨物，再滿足需求（舊欠交優先），最後下單。零售商與批發商補貨 2 週後到貨。製造商生產計畫 2 週後完工，出貨後再運輸 2 週。下游訂單訊號下一週才傳到上游，因此配送商下單至到貨約 5 週（1 週訊息傳遞＋2 週生產＋2 週運輸）。未滿足需求會成為欠交。持有成本每箱每週 1；欠交成本每箱每週 2。供應商供貨能力不限。訂單為 0 至 999 箱整數。</p><h3>財務假設</h3><p>遊戲開始前設定價格，價格沿供應鏈由上游至下游不得遞減。角色營收依實際出貨量計算。進貨成本依到貨量計；製造商生產成本依實際出貨量計。淨獲利＝營收－貨品成本－持有成本－缺貨成本。最終顧客支出＝零售商出貨量 × 零售價；不把供應鏈內部銷售重複加總。</p><h3>各圖表讀法</h3><p><strong>需求與向上游下單：</strong>比較各角色實際下單序列與顧客需求基準。變異放大比＝訂單變異數 ÷ 顧客需求變異數。淡色區段須持續多週訊號，不會因單週尖峰觸發。</p><p><strong>單週需求波形：</strong>選擇完局後的週次，比較各階段收到的需求及對應向上游下單量。播放功能逐週前進並停在最後一週。</p><p><strong>營運長條圖與流程：</strong>長條顯示需求、期末庫存、欠交及在途量（箱）。流程圖區分向上游傳遞的資訊與向下游運輸的貨物；適用時分開呈現生產與運輸數量。</p><p><strong>成本與獲利：</strong>累積營運成本圖顯示持有與缺貨成本；每週獲利圖顯示營收扣除貨品與營運成本。局部資訊遊戲中只顯示本人角色；完局復盤才顯示全鏈。</p><p><strong>CSV／PNG：</strong>CSV 匯出實際逐週歷史。PNG 按鈕以簡報解析度匯出所選圖表；總覽按鈕將結果圖表整合成單張圖片。</p>`;
+      }
+
+      function translatePage() {
+        document.documentElement.lang = language === "en" ? "en" : "zh-Hant";
+        document.title = language === "en" ? "Beer Game | Solo Teaching Edition" : "啤酒遊戲｜單機教學版";
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (!node.parentElement || ["SCRIPT", "STYLE"].includes(node.parentElement.tagName)) continue;
+          let source = textTranslationSources.get(node);
+          if (source === undefined || node.nodeValue !== textTranslationOutputs.get(node)) {
+            source = node.nodeValue;
+            textTranslationSources.set(node, source);
+          }
+          const translated = translateText(source);
+          node.nodeValue = translated;
+          textTranslationOutputs.set(node, translated);
+        }
+        document.querySelectorAll("body *").forEach((element) => {
+          for (const attribute of ["aria-label", "placeholder", "title"]) {
+            if (!element.hasAttribute(attribute)) continue;
+            let sources = attributeTranslationSources.get(element);
+            let outputs = attributeTranslationOutputs.get(element);
+            if (!sources) {
+              sources = {};
+              outputs = {};
+              attributeTranslationSources.set(element, sources);
+              attributeTranslationOutputs.set(element, outputs);
+            }
+            const value = element.getAttribute(attribute);
+            if (sources[attribute] === undefined || value !== outputs[attribute]) sources[attribute] = value;
+            const translated = translateText(sources[attribute]);
+            element.setAttribute(attribute, translated);
+            outputs[attribute] = translated;
+          }
+        });
+        $("language-toggle").textContent = language === "en" ? "繁體中文" : "English";
+        $("language-toggle").setAttribute("aria-label", language === "en" ? "切換語言" : "Switch language");
+        setManualContent();
+      }
+
+      function demandAt(script, week, totalWeeks) {
+        if (script === "surge") return week < 5 ? 4 : 8;
+        if (script === "pulse") return week === Math.max(3, Math.floor(totalWeeks / 2)) ? 12 : 4;
+        if (script === "wave") return [3, 4, 5, 6, 5, 4][(week - 1) % 6];
+        return 4;
+      }
+
+      function createGame(config) {
+        return {
+          ...config,
+          week: 0,
+          complete: false,
+          demandHistory: [],
+          customerSpending: 0,
+          productionPipeline: [],
+          roles: ROLES.map((role) => ({
+            ...role,
+            stock: INITIAL_STOCK,
+            backlog: 0,
+            inbound: [],
+            history: [],
+            totalHolding: 0,
+            totalShortage: 0,
+            totalRevenue: 0,
+            totalGoodsCost: 0
+          }))
+        };
+      }
+
+      function readPrices() {
+        return {
+          retailPrice: Number($("retail-price").value),
+          wholesalerPrice: Number($("wholesaler-price").value),
+          distributorPrice: Number($("distributor-price").value),
+          manufacturerPrice: Number($("manufacturer-price").value),
+          productionCost: Number($("production-cost").value)
+        };
+      }
+
+      function validatePrices(prices) {
+        const fields = [
+          ["production-cost", prices.productionCost, "製造商生產成本"],
+          ["manufacturer-price", prices.manufacturerPrice, "製造商售價"],
+          ["distributor-price", prices.distributorPrice, "配送商售價"],
+          ["wholesaler-price", prices.wholesalerPrice, "批發商售價"],
+          ["retail-price", prices.retailPrice, "零售商售價"]
+        ];
+        for (const id of PRICE_INPUT_IDS) $(id).setCustomValidity("");
+        for (const [id, value, label] of fields) {
+          if (!Number.isFinite(value) || value < 0 || value > 9999) {
+            $(id).setCustomValidity(`${label}須為 0 至 9,999 之間的數字。`);
+            $(id).reportValidity();
+            return false;
+          }
+        }
+        for (let index = 1; index < fields.length; index += 1) {
+          const [id, value, label] = fields[index];
+          const [, previousValue, previousLabel] = fields[index - 1];
+          if (value < previousValue) {
+            $(id).setCustomValidity(`${label}不得低於${previousLabel}；請維持逐階不降價。`);
+            $(id).reportValidity();
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function formatMoney(value) {
+        return new Intl.NumberFormat("zh-Hant", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(value);
+      }
+
+      function sellingPriceForRole(prices, index) {
+        return [
+          prices.retailPrice,
+          prices.wholesalerPrice,
+          prices.distributorPrice,
+          prices.manufacturerPrice
+        ][index];
+      }
+
+      function variance(values) {
+        if (values.length < 2) return null;
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return values.reduce((sum, value) => sum + (value - average) ** 2, 0) / values.length;
+      }
+
+      function mean(values) {
+        return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+      }
+
+      function recommendedOrder(role, demand, game = state) {
+        const recent = role.history.slice(-3).map((entry) => entry.demand);
+        const forecast = recent.length ? mean(recent) : demand;
+        const productionQueue = role.id === "manufacturer" && game
+          ? game.productionPipeline.filter((job) => !job.completed).reduce((sum, job) => sum + job.quantity, 0)
+          : 0;
+        const pipeline = role.inbound.reduce((sum, shipment) => sum + shipment.quantity, 0) + productionQueue;
+        const inventoryPosition = role.stock + pipeline - role.backlog;
+        const roleLeadTime = role.id === "distributor" ? 1 + MANUFACTURING_TIME + LEAD_TIME : LEAD_TIME;
+        const target = forecast * (roleLeadTime + 1) + 4;
+        return Math.max(0, Math.round(target - inventoryPosition));
+      }
+
+      function playRound(game, playerOrder) {
+        if (game.complete) throw new Error("遊戲已結束，請重新開始。");
+        const week = game.week + 1;
+        const customerDemand = demandAt(game.script, week, game.totalWeeks);
+        const demands = game.roles.map((role, index) => {
+          if (index === 0) return customerDemand;
+          const previousRole = game.roles[index - 1];
+          return previousRole.history.length ? previousRole.history[previousRole.history.length - 1].order : INITIAL_DOWNSTREAM_ORDER;
+        });
+        const completedProduction = game.productionPipeline.filter((job) => !job.completed && job.productionCompleteWeek <= week);
+        for (const job of completedProduction) job.completed = true;
+        const productionByWeek = completedProduction.reduce((sum, job) => sum + job.quantity, 0);
+        game.roles[3].stock += productionByWeek;
+        const received = game.roles.map((role) => {
+          let units = 0;
+          const remaining = [];
+          for (const shipment of role.inbound) {
+            if (shipment.dueWeek <= week) units += shipment.quantity;
+            else remaining.push(shipment);
+          }
+          role.inbound = remaining;
+          role.stock += units;
+          return units;
+        });
+        received[3] += productionByWeek;
+        const turn = [];
+
+        game.roles.forEach((role, index) => {
+          const demand = demands[index];
+          const due = role.backlog + demand;
+          const shipped = Math.min(role.stock, due);
+          role.stock -= shipped;
+          role.backlog = due - shipped;
+          const order = index === game.playerRoleIndex ? playerOrder : recommendedOrder(role, demand, game);
+          const recommendation = recommendedOrder(role, demand, game);
+          const holding = role.stock * HOLDING_COST;
+          const shortage = role.backlog * SHORTAGE_COST;
+          const sellingPrice = sellingPriceForRole(game.prices, index);
+          const costQuantity = index === 3 ? shipped : received[index];
+          const unitCost = index === 3
+            ? game.prices.productionCost
+            : [
+              game.prices.wholesalerPrice,
+              game.prices.distributorPrice,
+              game.prices.manufacturerPrice
+            ][index];
+          const goodsCost = costQuantity * unitCost;
+          const revenue = shipped * sellingPrice;
+          const grossProfit = revenue - goodsCost;
+          const operatingCost = holding + shortage;
+          const totalCost = goodsCost + operatingCost;
+          role.totalHolding += holding;
+          role.totalShortage += shortage;
+          role.totalRevenue += revenue;
+          role.totalGoodsCost += goodsCost;
+          if (index === 0) game.customerSpending += revenue;
+          if (index === 3) {
+            if (order > 0) {
+              const productionCompleteWeek = week + MANUFACTURING_TIME;
+              const dueWeek = productionCompleteWeek + LEAD_TIME;
+              game.productionPipeline.push({
+                quantity: order,
+                orderWeek: week,
+                productionCompleteWeek,
+                dueWeek,
+                completed: false
+              });
+            }
+          } else if (index !== 2 && order > 0) {
+            role.inbound.push({ dueWeek: week + LEAD_TIME, quantity: order });
+          }
+          if (index === 3 && shipped > 0) {
+            game.roles[2].inbound.push({
+              dueWeek: week + LEAD_TIME,
+              quantity: shipped,
+              manufacturerShipWeek: week,
+              shippedByManufacturer: true
+            });
+          }
+          const entry = {
+            week,
+            demand,
+            order,
+            received: received[index],
+            produced: index === 3 ? productionByWeek : 0,
+            productionPipeline: index === 3
+              ? game.productionPipeline.filter((job) => !job.completed).reduce((sum, job) => sum + job.quantity, 0)
+              : 0,
+            shipped,
+            stock: role.stock,
+            backlog: role.backlog,
+            holding,
+            shortage,
+            revenue,
+            sellingPrice,
+            costQuantity,
+            unitCost,
+            goodsCost,
+            grossProfit,
+            totalCost,
+            netProfit: revenue - totalCost,
+            cumulativeCost: role.totalHolding + role.totalShortage,
+            cumulativeTotalCost: role.totalGoodsCost + role.totalHolding + role.totalShortage,
+            manufacturerInTransit: 0,
+            recommendation
+          };
+          role.history.push(entry);
+          turn.push(entry);
+        });
+
+        turn[2].manufacturerInTransit = game.roles[2].inbound
+          .filter((shipment) => shipment.shippedByManufacturer)
+          .reduce((sum, shipment) => sum + shipment.quantity, 0);
+        game.demandHistory.push(customerDemand);
+        game.week = week;
+        game.complete = week >= game.totalWeeks;
+        return { week, customerDemand, demands, roles: turn, complete: game.complete };
+      }
+
+      function seriesMetrics(values, baselineVariance) {
+        const varianceValue = variance(values);
+        const average = mean(values);
+        const deviation = varianceValue === null ? null : Math.sqrt(varianceValue);
+        return {
+          variance: varianceValue,
+          ratio: varianceValue === null || baselineVariance === null || baselineVariance === 0 ? null : varianceValue / baselineVariance,
+          coefficient: deviation === null || average === 0 ? null : deviation / average,
+          average
+        };
+      }
+
+      function coefficient(values) {
+        if (!values.length) return null;
+        const average = mean(values);
+        const value = variance(values);
+        if (value === null || average === 0) return null;
+        return Math.sqrt(value) / average;
+      }
+
+      function detectAmplification(game, roles, baseline = game.demandHistory) {
+        const windowSize = 3;
+        const windows = [];
+        for (let end = windowSize - 1; end < game.demandHistory.length; end += 1) {
+          const start = end - windowSize + 1;
+          const demandVolatility = coefficient(baseline.slice(start, end + 1)) ?? 0;
+          const orderVolatility = Math.max(0, ...roles.map((role) => coefficient(
+            role.history.slice(start, end + 1).map((entry) => entry.order)
+          ) ?? 0));
+          const movementStart = Math.max(0, end - 4);
+          const movementWeeks = new Set();
+          for (let week = movementStart + 1; week <= end; week += 1) {
+            if (roles.some((role) => Math.abs(role.history[week].order - role.history[week - 1].order) > 0)) {
+              movementWeeks.add(week);
+            }
+          }
+          windows.push({
+            start,
+            end,
+            score: orderVolatility / Math.max(demandVolatility, 0.05),
+            sustained: movementWeeks.size >= 3
+          });
+        }
+
+        const segments = [];
+        let run = [];
+        const closeRun = () => {
+          if (run.length >= 3) segments.push(run);
+          run = [];
+        };
+        for (const point of windows) {
+          if (point.score >= 1.35 && point.sustained) run.push(point);
+          else closeRun();
+        }
+        closeRun();
+        return { windows, segments };
+      }
+
+      function visibleRoles(game) {
+        return game.informationMode === "full" || game.complete
+          ? game.roles
+          : [game.roles[game.playerRoleIndex]];
+      }
+
+      function renderAmplificationSummary(container, game, roles, baseline) {
+        if (!game.week) {
+          container.textContent = "完成至少兩週後計算訂單變異數比。";
+          return;
+        }
+        const baselineVariance = variance(baseline);
+        container.innerHTML = roles.map((role) => {
+          const ratio = seriesMetrics(role.history.map((entry) => entry.order), baselineVariance).ratio;
+          const visibleName = game.informationMode === "local" && !game.complete
+            ? "本人角色"
+            : role.name;
+          return `<span class="amplification-chip" title="該角色訂單變異數 ÷ ${game.informationMode === "local" && !game.complete ? "本人下游需求" : "終端顧客需求"}變異數"><span class="role-dot" style="--role-color:${role.color}"></span>${visibleName} 訂單 ${ratio === null ? "—" : `${ratio.toFixed(2)}×`}</span>`;
+        }).join("");
+      }
+
+      function renderLiveOrderChart(game, roles) {
+        const local = game.informationMode === "local" && !game.complete;
+        const localRetailer = local && game.playerRoleId === "retailer";
+        $("live-order-title").textContent = local
+          ? (game.playerRoleId === "manufacturer" ? "你的下游訂單與生產計畫" : "你的下游訂單與向上游下單")
+          : "顧客需求與向上游下單";
+        const customer = game.demandHistory;
+        const demand = local
+          ? game.roles[game.playerRoleIndex].history.map((entry) => entry.demand)
+          : customer;
+        const baselineLabel = local
+          ? (localRetailer ? "你的顧客訂單" : "你的下游訂單")
+          : "終端顧客需求";
+        const datasets = [
+          { label: baselineLabel, values: demand, color: "#303a30", dashed: true },
+          ...roles.map((role) => ({
+            label: local
+              ? (role.id === "manufacturer" ? "你的生產計畫" : "你的向上游訂單")
+              : `${role.name} ${role.id === "manufacturer" ? "生產計畫" : "向上游下單"}`,
+            values: role.history.map((entry) => entry.order),
+            color: role.color
+          }))
+        ];
+        const trend = detectAmplification(game, roles, demand);
+        const annotations = trend.segments.flatMap((segment) => {
+          const rising = segment.at(-1).score - segment[0].score >= 0.2;
+          const start = segment[0];
+          const middle = segment[Math.floor((segment.length - 1) / 2)];
+          const items = [{
+            fromIndex: start.start,
+            toIndex: start.start + 1,
+            label: "放大開始",
+            row: 0
+          }, {
+            fromIndex: middle.start,
+            toIndex: segment.at(-1).end,
+            label: rising ? "持續擴大" : "持續高波動",
+            row: 1
+          }];
+          const recovery = segment.at(-1).end + 1;
+          if (recovery < game.week) {
+            items.push({
+              fromIndex: recovery,
+              toIndex: Math.min(game.week - 1, recovery + 1),
+              label: "波動回落",
+              row: 2
+            });
+          }
+          return items;
+        });
+        const chartAria = `遊戲中的${baselineLabel}與${local ? "本人" : "四角色"}訂單趨勢`;
+        renderLineChart($("live-order-chart"), datasets, "數量（箱）", "週次", chartAria, annotations, game.week > 0 && !trend.segments.length
+          ? "尚未偵測到持續放大；單週尖峰不會觸發區段標註。"
+          : "");
+        $("live-order-legend").innerHTML = datasets.map((dataset) => `<span class="legend-item"><span class="legend-line${dataset.dashed ? " dashed" : ""}" style="--legend:${dataset.color}"></span>${dataset.label}</span>`).join("");
+        renderAmplificationSummary($("live-amplification"), game, roles, demand);
+        $("live-view-scope").textContent = local
+          ? "局部資訊：圖表僅含本人下游需求、訂單、庫存、欠交與成本；不使用其他角色數列。"
+          : (game.complete
+            ? "完整復盤：圖表含終端顧客需求與四角色歷史。"
+            : "完整資訊：圖表顯示終端顧客需求與四角色各週實際下單量。");
+      }
+
+      function renderLiveStockChart(game, roles) {
+        const local = game.informationMode === "local" && !game.complete;
+        const datasets = roles.flatMap((role) => [
+          { label: `${local ? "本人" : role.name}庫存`, values: role.history.map((entry) => entry.stock), color: role.color },
+          { label: `${local ? "本人" : role.name}欠交`, values: role.history.map((entry) => entry.backlog), color: role.color, dashed: true }
+        ]);
+        renderLineChart($("live-stock-chart"), datasets, "數量（箱）", "週次", `${local ? "本人" : "角色"}庫存與欠交趨勢`);
+        $("live-stock-legend").innerHTML = datasets.map((dataset) => `<span class="legend-item"><span class="legend-line${dataset.dashed ? " dashed" : ""}" style="--legend:${dataset.color}"></span>${dataset.label}</span>`).join("");
+      }
+
+      function renderLiveCostChart(game, roles) {
+        const local = game.informationMode === "local" && !game.complete;
+        const datasets = roles.flatMap((role) => [
+          { label: `${local ? "本人" : role.name}累積持有成本`, values: cumulative(role.history.map((entry) => entry.holding)), color: role.color },
+          { label: `${local ? "本人" : role.name}累積缺貨成本`, values: cumulative(role.history.map((entry) => entry.shortage)), color: role.color, dashed: true }
+        ]);
+        renderLineChart($("live-cost-chart"), datasets, "累積成本（成本點）", "週次", `${local ? "本人" : "角色"}累積持有與缺貨成本趨勢`);
+        $("live-cost-legend").innerHTML = datasets.map((dataset) => `<span class="legend-item"><span class="legend-line${dataset.dashed ? " dashed" : ""}" style="--legend:${dataset.color}"></span>${dataset.label}</span>`).join("");
+      }
+
+      function renderLiveProfitChart(game, roles) {
+        const local = game.informationMode === "local" && !game.complete;
+        const datasets = roles.map((role) => ({
+          label: `${local ? "本人" : role.name}每週淨獲利`,
+          values: role.history.map((entry) => entry.netProfit),
+          color: role.color
+        }));
+        renderLineChart($("live-profit-chart"), datasets, "每週淨獲利（貨幣單位）", "週次", `${local ? "本人" : "四角色"}每週淨獲利趨勢`);
+        $("live-profit-legend").innerHTML = datasets.map((dataset) => `<span class="legend-item"><span class="legend-line" style="--legend:${dataset.color}"></span>${dataset.label}</span>`).join("");
+      }
+
+      function cumulative(values) {
+        let total = 0;
+        return values.map((value) => {
+          total += value;
+          return total;
+        });
+      }
+
+      function flowDefs() {
+        return `<defs><marker id="flow-arrow-demand" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#9b7141"></path></marker><marker id="flow-arrow-beer" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#3d7854"></path></marker><marker id="flow-arrow-order" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#527a9c"></path></marker></defs>`;
+      }
+
+      function renderFullFlowDiagram(game) {
+        const english = language === "en";
+        const completed = game.complete;
+        const width = 1100;
+        const height = 315;
+        const nodeX = [155, 385, 615, 845];
+        const nodeWidth = 185;
+        const latest = (role) => role.history.at(-1);
+        const customerDemand = game.demandHistory.at(-1) ?? demandAt(game.script, 1, game.totalWeeks);
+        const nodes = game.roles.map((role, index) => {
+          const entry = latest(role);
+          const stock = entry?.stock ?? role.stock;
+          const backlog = entry?.backlog ?? role.backlog;
+          const demand = entry?.demand ?? (index === 0 ? customerDemand : INITIAL_DOWNSTREAM_ORDER);
+          const order = entry?.order;
+          const pipeline = role.inbound.reduce((sum, shipment) => sum + shipment.quantity, 0);
+          const inbound = role.inbound.length
+            ? (english ? `${role.inbound.length} shipments` : `${role.inbound.length} 批`)
+            : (english ? "None" : "無");
+          const delivered = entry?.received ?? 0;
+          const shipped = entry?.shipped ?? 0;
+          const y = 93;
+          const productionPending = game.productionPipeline.filter((job) => !job.completed).reduce((sum, job) => sum + job.quantity, 0);
+          const productionTransit = game.roles[2].inbound
+            .filter((shipment) => shipment.shippedByManufacturer)
+            .reduce((sum, shipment) => sum + shipment.quantity, 0);
+          const metrics = [
+            english
+              ? `${completed ? "Demand received" : "Demand this week"}: ${demand} cases`
+              : `${completed ? "收到需求" : "本週需求"} ${demand} 箱`,
+            english
+              ? `Inventory ${stock} cases　Backlog ${backlog} cases`
+              : `庫存 ${stock} 箱　欠交 ${backlog} 箱`,
+            index === 3
+              ? (english
+                ? `In production ${productionPending} cases　In transit ${productionTransit} cases`
+                : `生產中 ${productionPending} 箱　配送中 ${productionTransit} 箱`)
+              : (english
+                ? `In transit ${pipeline} cases${inbound === "None" ? "" : ` · ${inbound}`}`
+                : `在途 ${pipeline} 箱${inbound === "無" ? "" : ` · ${inbound}`}`),
+            english
+              ? `${role.id === "manufacturer" ? "Production plan" : "Order"} ${order === undefined ? "—" : `${order} cases`}　Received ${delivered} cases`
+              : `${role.id === "manufacturer" ? "生產計畫" : "下單"} ${order === undefined ? "—" : `${order} 箱`}　到貨 ${delivered} 箱`,
+            english ? `Shipped this week ${shipped} cases` : `本週出貨 ${shipped} 箱`
+          ];
+          return `<g><rect class="flow-node${role.id === game.playerRoleId ? " player" : " actor"}" x="${nodeX[index]}" y="${y}" width="${nodeWidth}" height="159" rx="10"></rect><text class="flow-title" x="${nodeX[index] + 11}" y="${y + 20}">${role.name}${role.id === game.playerRoleId ? " · 你" : " · 電腦"}</text>${metrics.map((line, metricIndex) => `<text class="${metricIndex === 0 ? "flow-title" : "flow-metric"}" x="${nodeX[index] + 11}" y="${y + 43 + metricIndex * 21}">${line}</text>`).join("")}</g>`;
+        }).join("");
+        const connectors = game.roles.slice(0, 3).map((role, index) => {
+          const x1 = nodeX[index] + nodeWidth + 3;
+          const x2 = nodeX[index + 1] - 3;
+          const transferTitle = language === "en"
+            ? `${game.roles[index + 1].name} ships downstream; ${role.name} orders upstream`
+            : `${game.roles[index + 1].name} 出貨向下游；${role.name} 下單向上游`;
+          return `<line class="flow-arrow-beer" x1="${x2}" y1="53" x2="${x1}" y2="53" marker-end="url(#flow-arrow-beer)"></line><line class="flow-arrow-order" x1="${x1}" y1="278" x2="${x2}" y2="278" marker-end="url(#flow-arrow-order)"></line><title>${transferTitle}</title>`;
+        }).join("");
+        const firstEntry = latest(game.roles[0]);
+        const customer = `<rect class="flow-node" x="6" y="115" width="130" height="114" rx="10"></rect><text class="flow-title" x="71" y="141" text-anchor="middle">${english ? "Customer demand" : "顧客需求"}</text><text class="flow-metric" x="71" y="166" text-anchor="middle">${customerDemand} ${english ? "cases" : "箱"}</text><text class="flow-muted" x="71" y="193" text-anchor="middle">${completed ? (english ? `Retailer shipped ${firstEntry?.shipped ?? 0} cases` : `零售商出貨 ${firstEntry?.shipped ?? 0} 箱`) : (english ? "Received by Retailer" : "零售商直接收到")}</text><line class="flow-arrow-demand" x1="137" y1="171" x2="152" y2="171" marker-end="url(#flow-arrow-demand)"></line>`;
+        const aria = english
+          ? "Supply-chain flow; demand and orders travel upstream, beer shipments travel downstream; nodes show demand, orders, stock, backlog, pipeline, receipts, and shipments."
+          : "供應鏈角色流程圖；需求與訂單向上游，啤酒實物流向下游；各節點顯示庫存、欠交、在途、到貨與下單量";
+        const flowLabels = english
+          ? ["Beer / shipments flow downstream ←", "Demand / replenishment orders flow upstream →"]
+          : ["啤酒／出貨　← 向下游", "需求／補貨訂單　→ 向上游"];
+        return `<svg class="flow-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${aria}">${flowDefs()}<text class="flow-muted" x="554" y="18" text-anchor="middle">${flowLabels[0]}</text><text class="flow-muted" x="554" y="308" text-anchor="middle">${flowLabels[1]}</text>${connectors}${customer}${nodes}</svg>`;
+      }
+
+      function renderLocalFlowDiagram(game) {
+        const english = language === "en";
+        const role = game.roles[game.playerRoleIndex];
+        const entry = role.history.at(-1);
+        const completed = game.complete;
+        const demand = entry?.demand ?? (game.playerRoleId === "retailer" ? demandAt(game.script, game.week + 1, game.totalWeeks) : (game.roles[game.playerRoleIndex - 1]?.history.at(-1)?.order ?? INITIAL_DOWNSTREAM_ORDER));
+        const order = entry?.order;
+        const stock = entry?.stock ?? role.stock;
+        const backlog = entry?.backlog ?? role.backlog;
+        const inbound = role.inbound.reduce((sum, shipment) => sum + shipment.quantity, 0);
+        const shipped = entry?.shipped ?? 0;
+        const stockLabel = `${stock} 箱`;
+        const backorderLabel = `${backlog} 箱`;
+        const orderLabel = order === undefined ? (english ? "No order placed" : "尚未下單") : `${order} ${english ? "cases" : "箱"}`;
+        const inboundLabel = `${inbound} ${english ? "cases" : "箱"}`;
+        const downstreamLabel = game.playerRoleId === "retailer"
+          ? (english ? "Customer orders" : "顧客訂單")
+          : (english ? "Your downstream order" : "你的下游訂單");
+        const roleX = 390;
+        const roleY = 84;
+        const roleWidth = 300;
+        const productionPending = game.productionPipeline.filter((job) => !job.completed).reduce((sum, job) => sum + job.quantity, 0);
+        const productionTransit = state.roles[2].inbound.filter((shipment) => shipment.shippedByManufacturer)
+          .reduce((sum, shipment) => sum + shipment.quantity, 0);
+        const metrics = [
+          english
+            ? `${completed ? "Demand received" : "Downstream order this week"}: ${demand} cases`
+            : `${completed ? "已收到訂單" : "本週下游訂單"} ${demand} 箱`,
+          english
+            ? `Inventory ${stock} cases　Backlog ${backlog} cases`
+            : `庫存 ${stockLabel}　欠交 ${backorderLabel}`,
+          english
+            ? `${role.id === "manufacturer" ? `In production ${productionPending} cases / In transit ${productionTransit} cases` : `In transit ${inboundLabel}`}　${role.id === "manufacturer" ? "Production plan" : "Order"} ${orderLabel}`
+            : `${role.id === "manufacturer" ? `生產中 ${productionPending} 箱／配送中 ${productionTransit} 箱` : `在途 ${inboundLabel}`}　${role.id === "manufacturer" ? "生產計畫" : "下單"} ${orderLabel}`,
+          english ? `Shipped this week ${shipped} cases` : `本週出貨 ${shipped} 箱`
+        ];
+        const left = `<rect class="flow-node" x="45" y="115" width="200" height="130" rx="11"></rect><text class="flow-title" x="145" y="145" text-anchor="middle">${downstreamLabel}</text><text class="flow-metric" x="145" y="175" text-anchor="middle">${demand} ${english ? "cases" : "箱"}</text><text class="flow-muted" x="145" y="205" text-anchor="middle">${completed ? (english ? "Final-week demand" : "最後一週需求") : (english ? "Only your information" : "僅顯示你的資訊")}</text>`;
+        const player = `<rect class="flow-node player" x="${roleX}" y="${roleY}" width="${roleWidth}" height="170" rx="12"></rect><text class="flow-title" x="${roleX + 16}" y="${roleY + 27}">${role.name}${english ? " · You control" : " · 你操作"}</text>${metrics.map((line, index) => `<text class="flow-metric" x="${roleX + 16}" y="${roleY + 56 + index * 24}">${line}</text>`).join("")}`;
+        const upstream = `<rect class="flow-node" x="850" y="115" width="200" height="130" rx="11"></rect><text class="flow-title" x="950" y="148" text-anchor="middle">${english ? "Upstream supply" : "上游供貨"}</text><text class="flow-muted" x="950" y="174" text-anchor="middle">${english ? "Other roles' actions" : "其他角色的操作"}</text><text class="flow-muted" x="950" y="193" text-anchor="middle">${english ? "Hidden in this scenario" : "在本情境中隱藏"}</text>`;
+        const arrows = `<line class="flow-arrow-demand" x1="247" y1="178" x2="${roleX - 4}" y2="178" marker-end="url(#flow-arrow-demand)"></line><line class="flow-arrow-beer" x1="846" y1="153" x2="${roleX + roleWidth + 4}" y2="153" marker-end="url(#flow-arrow-beer)"></line><line class="flow-arrow-order" x1="${roleX + roleWidth + 4}" y1="207" x2="846" y2="207" marker-end="url(#flow-arrow-order)"></line>`;
+        const labels = english
+          ? { aria: "Local-information supply-chain flow; only your demand, inventory, backlog, pipeline, orders, and shipments are shown.", incoming: "Downstream demand enters your role", hidden: "Other roles' operations hidden", beer: "Beer ships to you ←", order: "Your order upstream →" }
+          : { aria: `局部資訊供應鏈流程圖：顯示本人${role.name}的下游需求、庫存、欠交、在途、下單與出貨；其他角色狀態僅以隱藏節點表示`, incoming: "下游需求進入你的角色", hidden: "其他角色運作資訊隱藏", beer: "啤酒向你運輸　←", order: "你的訂單向上游　→" };
+        return `<svg class="flow-svg" viewBox="0 0 1100 290" role="img" aria-label="${labels.aria}">${flowDefs()}<text class="flow-muted" x="145" y="95" text-anchor="middle">${labels.incoming}</text><text class="flow-muted" x="950" y="95" text-anchor="middle">${labels.hidden}</text><text class="flow-muted" x="950" y="267" text-anchor="middle">${labels.beer}</text><text class="flow-muted" x="${roleX + roleWidth + 76}" y="232" text-anchor="middle">${labels.order}</text>${arrows}${left}${player}${upstream}</svg>`;
+      }
+
+      function renderFlowDiagram(game) {
+        const fullInformation = game.informationMode === "full" || game.complete;
+        $("flow-subtitle").textContent = fullInformation
+          ? (language === "en"
+            ? "Demand and order signals travel upstream; beer flows downstream. Nodes show this week's demand, orders, stock, backlog, pipeline, receipts, and shipments."
+            : "需求與訂單訊號向上游傳遞；啤酒實物流向下游。節點顯示本週需求、訂單、庫存、欠交、在途、到貨與出貨。")
+          : (language === "en"
+            ? "Only your downstream demand, inventory, backlog, pipeline, shipments, and upstream orders are shown; other roles are represented by anonymous nodes with no data."
+            : "僅顯示你的下游需求、本角色庫存／欠交／在途／出貨與向上游訂單；其他角色只用匿名節點表示，不顯示其資料。");
+        $("flow-diagram").innerHTML = fullInformation
+          ? renderFullFlowDiagram(game)
+          : renderLocalFlowDiagram(game);
+      }
+
+      function renderDemandWave(game) {
+        const select = $("wave-week-select");
+        const chart = $("demand-wave-chart");
+        const legend = $("demand-wave-legend");
+        const english = language === "en";
+        const local = game.informationMode === "local" && !game.complete;
+        if (!game.week) {
+          select.disabled = true;
+          select.innerHTML = `<option value="">${english ? "Available after completing week 1" : "完成第一週後可選擇"}</option>`;
+          chart.innerHTML = `<div class="chart-empty">${english ? "After week 1, the wave is drawn from actual demand received that week." : "完成第一週後，會以該週實際收到的需求繪製波形。"}</div>`;
+          legend.innerHTML = "";
+          $("demand-wave-caption").textContent = local
+            ? (english ? "Local information shows only your role during play; the full supply-chain wave is revealed after the game." : "局部資訊情境只會顯示本人角色資料；完成遊戲後才公開完整供應鏈波形。")
+            : (english ? "Each node shows the demand received by that role; stages are connected Retailer → Wholesaler → Distributor → Manufacturer." : "每個節點是該週角色實際收到的需求；線條按零售商 → 批發商 → 配送商 → 製造商連接。");
+          waveRenderedWeek = 0;
+          translatePage();
+          return;
+        }
+
+        const previousSelection = Number(select.value);
+        const followsLatest = !previousSelection || previousSelection === waveRenderedWeek;
+        const selectedWeek = followsLatest
+          ? game.week
+          : Math.min(game.week, previousSelection);
+        select.disabled = false;
+        select.innerHTML = Array.from({ length: game.week }, (_, index) =>
+          `<option value="${index + 1}">${english ? `Week ${index + 1}` : `第 ${index + 1} 週`}</option>`
+        ).join("");
+        select.value = String(selectedWeek);
+        const index = selectedWeek - 1;
+        const customerDemand = local && game.playerRoleId !== "retailer"
+          ? null
+          : game.demandHistory[index];
+        const width = 820;
+        const height = 385;
+        const top = 48;
+        const bottom = 274;
+        const left = 78;
+        const right = 42;
+        const xPositions = local ? [252, 568] : [108, 310, 512, 714];
+        const localRole = game.roles[game.playerRoleIndex];
+        const roleEntries = local
+          ? [localRole.history[index]]
+          : game.roles.map((role) => role.history[index]);
+        const values = local
+          ? [roleEntries[0].demand, roleEntries[0].order]
+          : roleEntries.map((entry) => entry.demand);
+        const maximum = Math.max(5, ...values, customerDemand ?? 0);
+        const scaleMaximum = Math.ceil(maximum / 5) * 5;
+        const yAt = (value) => bottom - (value / scaleMaximum) * (bottom - top);
+        const points = values.map((value, pointIndex) => ({
+          x: xPositions[pointIndex],
+          y: yAt(value),
+          value
+        }));
+        const grid = Array.from({ length: 5 }, (_, gridIndex) => {
+          const value = scaleMaximum * (1 - gridIndex / 4);
+          const y = top + ((bottom - top) * gridIndex) / 4;
+          const label = Number.isInteger(value) ? value : value.toFixed(1);
+          return `<line class="wave-grid" x1="${left}" y1="${y}" x2="${width - right}" y2="${y}"></line><text x="${left - 10}" y="${y + 3}" text-anchor="end">${label}</text>`;
+        }).join("");
+        const path = points.length > 1
+          ? `M${points[0].x},${points[0].y}${points.slice(1).map((point, pointIndex) => {
+            const previous = points[pointIndex];
+            const control = (point.x - previous.x) / 3;
+            return ` C${previous.x + control},${previous.y} ${point.x - control},${point.y} ${point.x},${point.y}`;
+          }).join("")}`
+          : "";
+        const baseline = customerDemand === null
+          ? ""
+          : `<line class="wave-baseline" x1="${left}" y1="${yAt(customerDemand)}" x2="${width - right}" y2="${yAt(customerDemand)}"><title>第 ${selectedWeek} 週顧客需求基準：${customerDemand} 箱</title></line>`;
+        const stageLabels = local
+          ? [
+            { label: english ? "Demand received by you" : "本人收到需求", detail: `${roleEntries[0].demand} ${english ? "cases" : "箱"}`, color: localRole.color },
+            { label: english ? (localRole.id === "manufacturer" ? "Your production plan" : "Your upstream order") : (localRole.id === "manufacturer" ? "本人生產計畫" : "本人向上游下單"), detail: `${roleEntries[0].order} ${english ? "cases" : "箱"}`, color: localRole.color }
+          ]
+          : roleEntries.map((entry, pointIndex) => ({
+            label: game.roles[pointIndex].name,
+            detail: english
+              ? `Demand ${entry.demand} cases · order ${entry.order} cases`
+              : `收到 ${entry.demand} 箱 · 下單 ${entry.order} 箱`,
+            color: game.roles[pointIndex].color
+          }));
+        const nodes = points.map((point, pointIndex) => {
+          const stage = stageLabels[pointIndex];
+          const valueY = point.y < top + 32 ? point.y + 31 : point.y - 14;
+          return `<circle class="wave-node" cx="${point.x}" cy="${point.y}" r="7" fill="${stage.color}"><title>${english ? `Week ${selectedWeek}, ${stage.label}: ${point.value} cases` : `第 ${selectedWeek} 週，${stage.label}：${point.value} 箱`}</title></circle><rect class="wave-value-bg" x="${point.x - 31}" y="${valueY - 15}" width="62" height="22" rx="6"></rect><text class="wave-value" x="${point.x}" y="${valueY}" text-anchor="middle">${point.value} ${english ? "cases" : "箱"}</text><text class="wave-stage" x="${point.x}" y="309" text-anchor="middle">${stage.label}</text><text class="wave-detail" x="${point.x}" y="329" text-anchor="middle">${stage.detail}</text>`;
+        }).join("");
+        const direction = local
+          ? `<text class="wave-label" x="410" y="357" text-anchor="middle">${english ? "Local view compares only your received demand and order decision; other supply-chain stages are hidden." : "局部視野只比較本人收到的需求與本週決策下單；其餘供應鏈節點已隱藏。"}</text>`
+          : `<text class="wave-label" x="410" y="357" text-anchor="middle">${english ? "Demand signals travel upstream | Retailer → Wholesaler → Distributor → Manufacturer" : "需求訊號沿供應鏈向上游傳遞　零售商 → 批發商 → 配送商 → 製造商"}</text>`;
+        const baselineNote = customerDemand === null
+          ? ""
+          : `<text class="wave-label" x="${width - right}" y="26" text-anchor="end">${english ? (local ? "Customer-demand baseline" : "Customer-demand baseline this week") : (local ? "顧客需求基準" : "本週顧客需求基準")}: ${customerDemand} ${english ? "cases" : "箱"}</text>`;
+        chart.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${english ? `Week ${selectedWeek} demand wave; vertical axis is demand quantity in cases${local ? ", showing only your demand and order" : "; showing demand received by each supply-chain role"}` : `第 ${selectedWeek} 週需求波形；縱軸為需求數量（箱）${local ? "，只顯示本人角色需求與下單" : "；依序顯示零售商、批發商、配送商及製造商收到的需求"}`}"><text class="wave-label" x="${left}" y="26">${english ? "Demand (cases)" : "需求量（箱）"}</text>${baselineNote}${grid}${baseline ? baseline.replace(/第 (\d+) 週顧客需求基準：(\d+) 箱/, `Week $1 customer-demand baseline: $2 cases`) : ""}${path ? `<path class="wave-path" d="${path}"></path>` : ""}${nodes}${direction}</svg>`;
+        $("demand-wave-caption").textContent = local
+          ? (english
+            ? `Local information | Week ${selectedWeek} compares only demand received by your ${localRole.name} and your upstream order; other roles' data and nodes are hidden.${customerDemand === null ? " The customer-demand baseline is not shown to non-Retailers." : ""}`
+            : `局部資訊｜第 ${selectedWeek} 週只比較本人${localRole.name}收到的需求與向上游下單；其他角色資料與節點不顯示。${customerDemand === null ? "顧客需求基準不向非零售商揭露。" : ""}`)
+          : (english
+            ? `Week ${selectedWeek} demand-transmission wave. Nodes show demand received by each role and same-week upstream orders; the dashed line is customer demand.`
+            : `第 ${selectedWeek} 週實際需求傳遞波形。節點顯示各角色收到的需求；下方另列同週向上游下單量。虛線為同週終端顧客需求基準${game.complete ? "；遊戲結束後完整復盤。" : "；完整資訊情境顯示全鏈。"}`);
+        legend.innerHTML = local
+          ? `<span class="legend-item"><span class="legend-line" style="--legend:${localRole.color}"></span>${english ? "Your demand / decision" : "本人需求／決策"}</span>${customerDemand === null ? "" : `<span class="legend-item"><span class="legend-line dashed" style="--legend:#303a30"></span>${english ? "Customer-demand baseline" : "顧客需求基準"}</span>`}`
+          : `<span class="legend-item"><span class="legend-line" style="--legend:#527a9c"></span>${english ? "Demand received at each stage" : "各站實際收到的需求"}</span><span class="legend-item"><span class="legend-line dashed" style="--legend:#303a30"></span>${english ? "Customer-demand baseline" : "顧客需求基準"}</span>`;
+        waveRenderedWeek = game.week;
+        translatePage();
+      }
+
+      function stopWavePlayback(status = "播放已暫停。") {
+        if (wavePlaybackTimer !== null) {
+          window.clearInterval(wavePlaybackTimer);
+          wavePlaybackTimer = null;
+        }
+        $("wave-playback-toggle").textContent = language === "en" ? "▶ Play week by week" : "▶ 逐週播放";
+        $("wave-playback-toggle").setAttribute("aria-pressed", "false");
+        $("wave-playback-status").textContent = translateText(status);
+      }
+
+      function startWavePlayback() {
+        if (!state?.complete) return;
+        stopWavePlayback("");
+        const select = $("wave-week-select");
+        if (Number(select.value) >= state.week) {
+          select.value = "1";
+          renderDemandWave(state);
+        }
+        $("wave-playback-toggle").textContent = language === "en" ? "⏸ Pause playback" : "⏸ 暫停播放";
+        $("wave-playback-toggle").setAttribute("aria-pressed", "true");
+        $("wave-playback-status").textContent = translateText(`播放中：第 ${select.value} / ${state.week} 週；可手動選擇週次。`);
+        wavePlaybackTimer = window.setInterval(() => {
+          const currentWeek = Number(select.value);
+          if (currentWeek >= state.week) {
+            stopWavePlayback("已播放至最後一週。");
+            return;
+          }
+          select.value = String(currentWeek + 1);
+          renderDemandWave(state);
+          if (Number(select.value) >= state.week) {
+            stopWavePlayback(`已播放至最後一週（第 ${state.week} 週）。`);
+            return;
+          }
+          $("wave-playback-status").textContent = translateText(`播放中：第 ${select.value} / ${state.week} 週；可手動選擇週次。`);
+        }, 1000);
+      }
+
+      function renderOperationalViews(game) {
+        const roles = visibleRoles(game);
+        renderLiveOrderChart(game, roles);
+        renderLiveStockChart(game, roles);
+        renderLiveCostChart(game, roles);
+        renderLiveProfitChart(game, roles);
+        renderFlowDiagram(game);
+        renderDemandWave(game);
+      }
+
+      function renderRoleStrip() {
+        const fullInformation = state.informationMode === "full";
+        const visibleRoles = fullInformation ? state.roles : [state.roles[state.playerRoleIndex]];
+        $("role-strip").setAttribute("aria-label", fullInformation ? "四個角色的控制方式" : "本人角色的資訊範圍");
+        $("role-strip").innerHTML = visibleRoles.map((role) => {
+          const isPlayer = role.id === state.playerRoleId;
+          const description = fullInformation
+            ? (isPlayer ? "你操作" : "電腦 · 補貨策略")
+            : "局部資訊 · 本人角色";
+          return `<div class="role-tile${isPlayer ? " player" : ""}"><div class="role-tile-name"><span class="role-dot" style="--role-color:${role.color}"></span>${role.name}</div><span class="role-tile-mode">${description}</span></div>`;
+        }).join("");
+      }
+
+      function renderOperationalRows(demands, completed) {
+        const english = language === "en";
+        const fullInformation = state.informationMode === "full";
+        const roles = fullInformation ? state.roles : [state.roles[state.playerRoleIndex]];
+        $("round-role-list").classList.toggle("local", !fullInformation);
+        $("round-role-list").innerHTML = roles.map((role) => {
+          const index = state.roles.indexOf(role);
+          const latest = role.history.at(-1);
+          const demand = completed ? latest.demand : demands[index];
+          const stock = completed ? latest.stock : role.stock;
+          const backlog = completed ? latest.backlog : role.backlog;
+          const lastOrder = latest ? `${latest.order} ${english ? "cases" : "箱"}` : (english ? "No order placed" : "尚未下單");
+          const inbound = role.inbound.length
+            ? role.inbound.map((shipment) => shipment.manufacturerShipWeek
+              ? (english
+                ? `${shipment.quantity} cases (Manufacturer shipped in week ${shipment.manufacturerShipWeek}; arrives week ${shipment.dueWeek})`
+                : `${shipment.quantity} 箱（製造商第 ${shipment.manufacturerShipWeek} 週出貨；第 ${shipment.dueWeek} 週到）`)
+              : (english ? `${shipment.quantity} cases (arrives week ${shipment.dueWeek})` : `${shipment.quantity} 箱（第 ${shipment.dueWeek} 週到）`)).join(english ? ", " : "、")
+            : (english ? "None" : "無");
+          const productionPending = role.id === "manufacturer"
+            ? state.productionPipeline.filter((job) => !job.completed).reduce((sum, job) => sum + job.quantity, 0)
+            : 0;
+          const manufacturerTransit = role.id === "manufacturer"
+            ? state.roles[2].inbound.filter((shipment) => shipment.shippedByManufacturer).reduce((sum, shipment) => sum + shipment.quantity, 0)
+            : 0;
+          const pipelineLabel = role.id === "manufacturer"
+            ? (english ? `In production ${productionPending} cases / In transit ${manufacturerTransit} cases` : `生產中 ${productionPending} 箱／配送中 ${manufacturerTransit} 箱`)
+            : inbound;
+          const pipelineTitle = role.id === "manufacturer" ? (english ? "Production pipeline" : "生產管線") : (english ? "In-transit shipments" : "在途貨物");
+          const priorAction = role.id === "manufacturer" ? (english ? "Previous production plan" : "上週生產計畫") : (english ? "Previous order" : "上週下單");
+          const demandLabel = fullInformation ? (english ? "Demand received" : "收到需求") : (english ? "Your downstream order" : "你的下游訂單");
+          return `<div class="round-role"><span class="round-role-name"><span class="role-dot" style="--role-color:${role.color}"></span>${role.name}${role.id === state.playerRoleId ? (english ? " · You" : " · 你") : ""}</span><span class="round-role-value">${demandLabel}<br><strong>${demand} ${english ? "cases" : "箱"}</strong></span><span class="round-role-value">${english ? "Inventory / Backlog" : "庫存 / 欠交"}<br><strong>${stock} / ${backlog} ${english ? "cases" : "箱"}</strong></span><span class="round-role-value">${pipelineTitle}<br><strong>${pipelineLabel}</strong></span><span class="round-role-value">${priorAction}<br><strong>${lastOrder}</strong></span></div>`;
+        }).join("");
+        renderOperationsChart(roles, demands, completed);
+      }
+
+      function renderOperationsChart(roles, demands, completed) {
+        const chart = $("operations-chart");
+        const local = state.informationMode === "local";
+        const english = language === "en";
+        const pipelineFor = (role) => role.id === "manufacturer"
+          ? state.productionPipeline.filter((job) => !job.completed).reduce((sum, job) => sum + job.quantity, 0)
+          : role.inbound.reduce((sum, shipment) => sum + shipment.quantity, 0);
+        const maximum = Math.max(1, ...roles.flatMap((role) => {
+          const entry = role.history.at(-1);
+          const index = state.roles.indexOf(role);
+          return [
+            completed ? entry.demand : demands[index],
+            completed ? entry.stock : role.stock,
+            completed ? entry.backlog : role.backlog,
+            pipelineFor(role)
+          ];
+        }));
+        const scaleMaximum = Math.ceil(maximum / 5) * 5 || 1;
+        const width = 780;
+        const height = 220;
+        const top = 26;
+        const bottom = 158;
+        const groupWidth = width / roles.length;
+        const metrics = [
+          { key: "demand", label: local ? (english ? "Your demand" : "你的需求") : (english ? "Demand" : "需求"), color: "#b87a2f" },
+          { key: "stock", label: english ? "Inventory" : "庫存", color: "#3d7854" },
+          { key: "backlog", label: english ? "Backlog" : "欠交", color: "#b94e43" },
+          { key: "pipeline", label: english ? "Pipeline / production" : "在途／生產中", color: "#527a9c" }
+        ];
+        const yFor = (value) => bottom - (value / scaleMaximum) * (bottom - top);
+        const grid = Array.from({ length: 5 }, (_, index) => {
+          const value = scaleMaximum * (1 - index / 4);
+          const y = top + ((bottom - top) * index) / 4;
+          return `<line class="wave-grid" x1="52" y1="${y}" x2="${width - 18}" y2="${y}"></line><text x="44" y="${y + 3}" text-anchor="end">${value}</text>`;
+        }).join("");
+        const groups = roles.map((role, roleIndex) => {
+          const entry = role.history.at(-1);
+          const index = state.roles.indexOf(role);
+          const values = {
+            demand: completed ? entry.demand : demands[index],
+            stock: completed ? entry.stock : role.stock,
+            backlog: completed ? entry.backlog : role.backlog,
+            pipeline: pipelineFor(role)
+          };
+          const groupX = roleIndex * groupWidth;
+          const bars = metrics.map((metric, metricIndex) => {
+            const value = values[metric.key];
+            const barWidth = Math.min(34, groupWidth / (metrics.length + 1));
+            const x = groupX + groupWidth / 2 - (metrics.length * barWidth) / 2 + metricIndex * barWidth;
+            const y = yFor(value);
+            return `<rect x="${x + 2}" y="${y}" width="${barWidth - 5}" height="${bottom - y}" rx="3" fill="${metric.color}"><title>${metric.label}: ${value} boxes</title></rect><text class="operation-value" x="${x + barWidth / 2}" y="${Math.max(top - 3, y - 5)}" text-anchor="middle">${value}</text>`;
+          }).join("");
+          const label = local ? (english ? "You" : "你") : role.name;
+          return `${bars}<text x="${groupX + groupWidth / 2}" y="182" text-anchor="middle">${label}</text>`;
+        }).join("");
+        const legend = metrics.map((metric, index) =>
+          `<rect x="${88 + index * 155}" y="198" width="10" height="10" rx="2" fill="${metric.color}"></rect><text x="${102 + index * 155}" y="207">${metric.label} (${english ? "cases" : "箱"})</text>`
+        ).join("");
+        chart.setAttribute("aria-label", local
+          ? (english ? "Weekly quantity bars for your demand, inventory, backlog, and pipeline" : "本人每週需求、庫存、欠交與在途數量長條圖")
+          : (english ? "Weekly quantity bars for all four roles: demand, inventory, backlog, and pipeline" : "四角色每週需求、庫存、欠交與在途數量長條圖"));
+        chart.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${chart.getAttribute("aria-label")}${english ? "; vertical axis is cases, horizontal axis is role" : "；縱軸為箱數，橫軸為角色"}">${grid}${groups}${legend}</svg>`;
+      }
+
+      function renderCurrentWeek() {
+        const nextWeek = state.week + 1;
+        const customerDemand = demandAt(state.script, nextWeek, state.totalWeeks);
+        const fullInformation = state.informationMode === "full";
+        const local = !fullInformation;
+        $("round-current").textContent = String(state.week);
+        $("round-total").textContent = String(state.totalWeeks);
+        $("scenario-indicator").textContent = `${INFORMATION_MODES[state.informationMode].name} · ${DEMAND_NAMES[state.script]}`;
+        $("week-subtitle").textContent = fullInformation
+          ? (language === "en"
+            ? "All four roles are shown side by side | Retailer → Wholesaler → Distributor → Manufacturer"
+            : "四個角色資訊同步顯示｜零售商 → 批發商 → 配送商 → 製造商")
+          : (language === "en"
+            ? `Showing only ${state.roles[state.playerRoleIndex].name} information; other roles' states and actions are hidden.`
+            : `只顯示${state.roles[state.playerRoleIndex].name}資訊；不顯示其他角色狀態或操作。`);
+        $("visibility-note").textContent = INFORMATION_MODES[state.informationMode].inGame;
+        const playerRole = state.roles[state.playerRoleIndex];
+        $("decision-lead-time").textContent = playerRole.id === "distributor"
+          ? (language === "en"
+            ? "Your order signal reaches the Manufacturer next week; production takes 2 weeks plus 2 weeks of transit, about 5 weeks from your order to arrival."
+            : "下單訊號下一週送達製造商；生產 2 週＋運輸 2 週，從你下單到到貨約 5 週。")
+          : playerRole.id === "manufacturer"
+            ? (language === "en"
+              ? "Your production plan completes after 2 weeks; downstream transit begins when the goods ship."
+              : "你的生產計畫 2 週後完工，再依出貨與下游運輸進度處理。")
+            : (language === "en"
+              ? "Your order arrives after 2 weeks; downstream order signals reach the upstream role the following week."
+              : "本角色訂單 2 週後到貨；下游訂單訊號下一週傳到上游。");
+        $("decision-hint").textContent = playerRole.id === "manufacturer"
+          ? (language === "en"
+            ? "Your quantity this week is a production plan. Production takes 2 weeks before goods can be supplied downstream."
+            : "本週下單量代表製造計畫；生產需 2 週，完工後才能供應下游。")
+          : playerRole.id === "distributor"
+            ? (language === "en"
+              ? "Your order signal reaches the Manufacturer next week; production takes 2 weeks, then shipment takes 2 more weeks, about 5 weeks from order to arrival."
+              : "本週訂單訊號下一週送到製造商；製造 2 週後出貨，再運輸 2 週，從本週下單到到貨約 5 週。")
+            : (language === "en"
+              ? "Your order is sent upstream and becomes that role's demand signal next week."
+              : "本週下單量決定向上游提出的補貨單，並成為下一週上游角色收到的需求訊號。");
+        $("decision-title").textContent = playerRole.id === "manufacturer" ? (language === "en" ? "Your production decision" : "你的生產決策") : (language === "en" ? "Your replenishment decision" : "你的補貨決策");
+        $("order-label").textContent = playerRole.id === "manufacturer" ? (language === "en" ? "Production plan this week (cases)" : "本週生產計畫量（箱）") : (language === "en" ? "Order quantity this week (cases)" : "本週下單量（箱）");
+        $("decision-foot").textContent = playerRole.id === "manufacturer"
+          ? (language === "en"
+            ? "Computer production policy: forecast from up to 3 recent demand weeks; target stock = forecast × (production lead time + 1) + 4 cases, less stock and planned production, adjusted for backlog. This is a fixed baseline, not an optimized forecast."
+            : "電腦製造策略：以最近需求平均值估算（最長 3 週），目標生產庫存＝預測需求 ×（生產期 + 1 週）+ 4 箱緩衝，再扣除庫存、已排產量並考量欠交。這是固定的基準策略，非最佳化預測。")
+          : (language === "en"
+            ? "Computer policy: forecast from up to 3 recent demand weeks; target stock = forecast × (lead time + 1) + 4 cases, less stock and inbound pipeline, adjusted for backlog. This is a fixed baseline, not an optimized forecast."
+            : "電腦策略：以最近需求平均值估算（最長 3 週），目標庫存＝預測需求 ×（交期 + 1 週）+ 4 箱緩衝，再扣除庫存與在途貨物並考量欠交。這是固定的基準策略，非最佳化預測。");
+        const isLocalRetailer = !fullInformation && state.playerRoleId === "retailer";
+        $("customer-demand-panel").hidden = !fullInformation && !isLocalRetailer;
+        $("demand-label").textContent = fullInformation
+          ? (language === "en" ? "Retailer customer demand · exogenous baseline" : "零售商收到的顧客需求 · 外生需求基準")
+          : (language === "en" ? "Your downstream order · customer demand" : "你的下游訂單 · 顧客需求");
+        $("demand-context").textContent = fullInformation
+          ? (language === "en" ? "This week's demand is not affected by another role's order." : "本週不受前一角色下單影響")
+          : (language === "en" ? "As the Retailer, you receive this customer order directly." : "你操作零售商，這是直接收到的顧客訂單");
+        if (fullInformation || isLocalRetailer) $("customer-demand").textContent = String(customerDemand);
+        else $("customer-demand").textContent = "—";
+        const nextDemands = state.roles.map((role, index) => index === 0
+          ? customerDemand
+          : (state.roles[index - 1].history.at(-1)?.order ?? INITIAL_DOWNSTREAM_ORDER));
+        renderOperationalRows(nextDemands, false);
+        const player = state.roles[state.playerRoleIndex];
+        const recommendation = fullInformation ? recommendedOrder(player, nextDemands[state.playerRoleIndex]) : null;
+        $("recommendation-panel").hidden = local;
+        $("decision-foot").hidden = local;
+        $("recommended-order").textContent = recommendation === null ? "" : String(recommendation);
+        $("order-input").value = local ? "" : String(recommendation);
+        $("order-input").placeholder = local ? (language === "en" ? "Enter your order quantity" : "請自行輸入下單量") : "";
+        $("order-input").required = local;
+        $("order-input").disabled = false;
+        $("play-round").disabled = false;
+        $("play-round").textContent = language === "en" ? `Place order and end week ${nextWeek} →` : `確認下單並結束第 ${nextWeek} 週 →`;
+        $("week-feedback").hidden = state.week === 0;
+        if (state.week > 0) {
+          const previous = player.history.at(-1);
+          $("week-feedback").textContent = language === "en"
+            ? `Week ${state.week} settled: ${player.name} ordered ${previous.order} cases and shipped ${previous.shipped}; ending inventory ${previous.stock} cases, backlog ${previous.backlog}. Total cost this week (goods, holding, and shortage): ${formatMoney(previous.totalCost)}.`
+            : `第 ${state.week} 週結算：${player.name} 發出 ${previous.order} 箱訂單，出貨 ${previous.shipped} 箱；期末庫存 ${previous.stock} 箱、欠交 ${previous.backlog} 箱。本週總成本（含進貨／生產、持有與缺貨）${formatMoney(previous.totalCost)}。`;
+        }
+        renderOperationalViews(state);
+        translatePage();
+      }
+
+      function renderLineChart(container, datasets, yLabel, xLabel, ariaLabel, annotations = [], quietNote = "") {
+        if (!state || state.week === 0) {
+          container.innerHTML = `<div class="chart-empty">完成第一週後，${ariaLabel}會依實際遊戲歷史繪製。</div>`;
+          return;
+        }
+        const width = 800;
+        const height = 265;
+        const left = 54;
+        const right = 18;
+        const top = 18;
+        const bottom = 38;
+        const plotWidth = width - left - right;
+        const plotHeight = height - top - bottom;
+        const values = datasets.flatMap((dataset) => dataset.values);
+        const maxValue = Math.max(1, ...values);
+        const minValue = Math.min(0, ...values);
+        const scaleMax = Math.ceil(maxValue / 5) * 5 || 1;
+        const scaleMin = Math.floor(minValue / 5) * 5;
+        const xAt = (index) => state.week === 1 ? left + plotWidth / 2 : left + (index / (state.week - 1)) * plotWidth;
+        const pointsFor = (series) => series.map((value, index) => {
+          const x = xAt(index);
+          const y = top + ((scaleMax - value) / (scaleMax - scaleMin || 1)) * plotHeight;
+          return { x, y };
+        });
+        const regions = annotations.map((annotation) => {
+          const x1 = xAt(annotation.fromIndex);
+          const x2 = xAt(Math.max(annotation.fromIndex, annotation.toIndex));
+          const regionX = Math.max(left, x1 - (state.week > 1 ? plotWidth / (state.week - 1) / 2 : 0));
+          const regionEnd = Math.min(width - right, x2 + (state.week > 1 ? plotWidth / (state.week - 1) / 2 : 0));
+          return `<rect class="chart-annotation" x="${regionX}" y="${top}" width="${Math.max(1, regionEnd - regionX)}" height="${plotHeight}"></rect>`;
+        }).join("");
+        const grid = Array.from({ length: 5 }, (_, index) => {
+          const value = scaleMax - ((scaleMax - scaleMin) * index) / 4;
+          const y = top + plotHeight * (index / 4);
+          return `<line class="chart-grid" x1="${left}" y1="${y}" x2="${width - right}" y2="${y}"></line><text x="${left - 9}" y="${y + 3}" text-anchor="end">${Number.isInteger(value) ? value : value.toFixed(1)}</text>`;
+        }).join("");
+        const lines = datasets.map((dataset) => {
+          const points = pointsFor(dataset.values);
+          const path = points.map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+          const dash = dataset.dashed ? ' stroke-dasharray="6 5"' : "";
+          const dots = points.map((point, index) => `<circle class="chart-dot" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="3.1" fill="${dataset.color}"><title>第 ${index + 1} 週：${dataset.label} ${dataset.values[index]}</title></circle>`).join("");
+          return `<path class="chart-path${dataset.dashed ? " demand" : ""}" d="${path}" stroke="${dataset.color}"${dash}></path>${dots}`;
+        }).join("");
+        const xTicks = [...new Set([0, Math.floor((state.week - 1) / 2), state.week - 1])];
+        const xLabels = xTicks.map((index) => {
+          const x = xAt(index);
+          return `<text x="${x}" y="${height - 13}" text-anchor="middle">第 ${index + 1} 週</text>`;
+        }).join("");
+        const annotationMarkup = annotations.map((annotation, index) => {
+          const x1 = xAt(annotation.fromIndex);
+          const x2 = xAt(Math.max(annotation.fromIndex, annotation.toIndex));
+          const direction = x2 >= x1 ? 1 : -1;
+          const labelX = (x1 + x2) / 2;
+          const y = top + 14 + (annotation.row ?? index % 3) * 14;
+          return `<line class="chart-trend-arrow" x1="${x1}" y1="${y + 3}" x2="${x2 - 3 * direction}" y2="${y + 3}" marker-end="url(#trend-arrow-${container.id})"></line><text class="chart-trend-label" x="${labelX}" y="${y}" text-anchor="middle">${annotation.label}</text>`;
+        }).join("");
+        const note = quietNote ? `<text class="chart-label" x="${left + plotWidth / 2}" y="${top + plotHeight - 8}" text-anchor="middle">${quietNote}</text>` : "";
+        container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${ariaLabel}，橫軸為週次，縱軸為${yLabel}"><defs><marker id="trend-arrow-${container.id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#9c7430"></path></marker></defs><text x="${left}" y="11">${yLabel}</text>${regions}${grid}<line class="chart-axis" x1="${left}" y1="${top + plotHeight}" x2="${width - right}" y2="${top + plotHeight}"></line>${lines}${annotationMarkup}${note}${xLabels}<text x="${width - right}" y="${height - 1}" text-anchor="end">${xLabel}</text></svg>`;
+      }
+
+      function renderCharts() {
+        const demandDatasets = [
+          { label: "顧客需求 · 基準", values: state.demandHistory, color: "#303a30", dashed: true },
+          ...state.roles.map((role) => ({ label: `${role.name} ${role.id === "manufacturer" ? "生產計畫" : "向上游下單"}`, values: role.history.map((entry) => entry.order), color: role.color }))
+        ];
+        const trend = detectAmplification(state, state.roles);
+        const annotations = trend.segments.flatMap((segment) => {
+          const rising = segment.at(-1).score - segment[0].score >= 0.2;
+          const start = segment[0];
+          const middle = segment[Math.floor((segment.length - 1) / 2)];
+          const labels = [
+            { fromIndex: start.start, toIndex: start.start + 1, label: "放大開始", row: 0 },
+            { fromIndex: middle.start, toIndex: segment.at(-1).end, label: rising ? "持續擴大" : "持續高波動", row: 1 }
+          ];
+          const recovery = segment.at(-1).end + 1;
+          if (recovery < state.week) labels.push({ fromIndex: recovery, toIndex: Math.min(state.week - 1, recovery + 1), label: "波動回落", row: 2 });
+          return labels;
+        });
+        const quietNote = state.week >= 3 && !trend.segments.length
+          ? "目前無連續 3 個三週視窗達放大門檻；孤立尖峰不標示。"
+          : "";
+        renderLineChart($("demand-chart"), demandDatasets, "數量（箱）", "週次", "終端顧客需求與四角色向上游下單量圖", annotations, quietNote);
+        $("demand-legend").innerHTML = demandDatasets.map((dataset) => `<span class="legend-item"><span class="legend-line${dataset.dashed ? " dashed" : ""}" style="--legend:${dataset.color}"></span>${dataset.label}</span>`).join("");
+        const baselineVariance = variance(state.demandHistory);
+        const orderMetrics = state.roles.map((role) => ({
+          role,
+          metric: seriesMetrics(role.history.map((entry) => entry.order), baselineVariance)
+        }));
+        const orderLeader = orderMetrics.filter((item) => item.metric.ratio !== null).reduce((best, item) => !best || item.metric.ratio > best.metric.ratio ? item : best, null);
+        $("bullwhip-summary").textContent = orderLeader
+          ? (language === "en"
+            ? `${state.complete ? "Game complete" : "In progress"}: ${state.week} / ${state.totalWeeks} weeks. Amplification = order variance ÷ customer-demand variance. ${orderLeader.role.name} has the highest ratio (${orderLeader.metric.ratio.toFixed(2)}×); shaded regions require 3 consecutive 3-week windows above 1.35×.`
+            : `${state.complete ? "全場完成" : "進行中"} ${state.week} / ${state.totalWeeks} 週。以訂單變異數 ÷ 顧客需求變異數計算，${orderLeader.role.name}目前放大比最高（${orderLeader.metric.ratio.toFixed(2)}×）；淡色區段須連續 3 個三週視窗超過 1.35× 才標註。`)
+          : (language === "en"
+            ? `${state.complete ? "Game complete" : "In progress"}: ${state.week} / ${state.totalWeeks} weeks. The overall amplification ratio is undefined with fewer than 2 samples or zero customer-demand variance; actual orders are still shown.`
+            : `${state.complete ? "全場完成" : "進行中"} ${state.week} / ${state.totalWeeks} 週。樣本未達 2 週或顧客需求變異數為 0，整場訂單放大比暫不定義；圖中仍顯示實際下單歷史。`);
+
+        const costDatasets = state.roles.map((role) => ({
+          label: role.name,
+          values: role.history.map((entry) => entry.cumulativeCost),
+          color: role.color
+        }));
+        renderLineChart($("cost-chart"), costDatasets, "累積成本（成本點）", "週次", "四角色累積成本趨勢圖");
+        $("cost-legend").innerHTML = costDatasets.map((dataset) => `<span class="legend-item"><span class="legend-line" style="--legend:${dataset.color}"></span>${dataset.label}</span>`).join("");
+        const profitDatasets = state.roles.map((role) => ({
+          label: `${role.name}每週淨獲利`,
+          values: role.history.map((entry) => entry.netProfit),
+          color: role.color
+        }));
+        renderLineChart($("profit-chart"), profitDatasets, "每週淨獲利（貨幣單位）", "週次", "四角色每週淨獲利趨勢圖");
+        $("profit-legend").innerHTML = profitDatasets.map((dataset) => `<span class="legend-item"><span class="legend-line" style="--legend:${dataset.color}"></span>${dataset.label}</span>`).join("");
+      }
+
+      function renderScore() {
+        if (!state.week) {
+          $("bullwhip-summary").textContent = `已選擇「${DEMAND_NAMES[state.script]}」劇本；開始逐週遊玩後，摘要、圖表與指標會從實際結果計算。`;
+          $("score-rows").innerHTML = "";
+          $("history-rows").innerHTML = "";
+          $("customer-spend-summary").textContent = "";
+          $("price-summary").textContent = "";
+          $("result-status").textContent = `劇本：${DEMAND_NAMES[state.script]} · 預計 ${state.totalWeeks} 週。`;
+          return;
+        }
+        const baselineVariance = variance(state.demandHistory);
+        const metricRows = state.roles.map((role) => ({
+          role,
+          metrics: seriesMetrics(role.history.map((entry) => entry.demand), baselineVariance),
+          orderMetrics: seriesMetrics(role.history.map((entry) => entry.order), baselineVariance)
+        }));
+        $("score-rows").innerHTML = metricRows.map(({ role, metrics, orderMetrics }) => {
+          const last = role.history.at(-1);
+          const orderRatio = orderMetrics.ratio === null ? "—" : `${orderMetrics.ratio.toFixed(2)}×`;
+          const ratio = metrics.ratio === null ? "—" : `${metrics.ratio.toFixed(2)}×`;
+          const cv = metrics.coefficient === null ? "—" : `${(metrics.coefficient * 100).toFixed(1)}%`;
+          const totalCost = role.totalGoodsCost + role.totalHolding + role.totalShortage;
+          const netProfit = role.totalRevenue - totalCost;
+          return `<tr><td><span class="role-dot" style="--role-color:${role.color}"></span>${role.name}${role.id === state.playerRoleId ? "（你）" : ""}</td><td>${orderRatio}</td><td>${ratio}</td><td>${cv}</td><td>${metrics.average.toFixed(1)} 箱</td><td>${last.stock} 箱</td><td>${last.backlog} 箱</td><td>${formatMoney(role.totalRevenue)}</td><td>${formatMoney(role.totalGoodsCost)}</td><td>${formatMoney(role.totalRevenue - role.totalGoodsCost)}</td><td>${formatMoney(role.totalHolding)}</td><td>${formatMoney(role.totalShortage)}</td><td>${formatMoney(totalCost)}</td><td><strong>${formatMoney(netProfit)}</strong></td></tr>`;
+        }).join("");
+        const retailerShipments = state.roles[0].history.reduce((sum, entry) => sum + entry.shipped, 0);
+        $("customer-spend-summary").textContent = language === "en"
+          ? `Final-customer spending: ${formatMoney(state.customerSpending)} currency units (Retailer shipped ${retailerShipments} cases × retail price ${formatMoney(state.prices.retailPrice)} per case).`
+          : `最終顧客支出：${formatMoney(state.customerSpending)} 貨幣單位（零售商實際出貨 ${retailerShipments} 箱 × 零售價 ${formatMoney(state.prices.retailPrice)}／箱）。`;
+        $("price-summary").textContent = language === "en"
+          ? `Teaching prices per case: production cost ${formatMoney(state.prices.productionCost)} → Manufacturer ${formatMoney(state.prices.manufacturerPrice)} → Distributor ${formatMoney(state.prices.distributorPrice)} → Wholesaler ${formatMoney(state.prices.wholesalerPrice)} → Retailer ${formatMoney(state.prices.retailPrice)}.`
+          : `本局教學價格（貨幣單位／箱）：製造成本 ${formatMoney(state.prices.productionCost)} → 製造商售價 ${formatMoney(state.prices.manufacturerPrice)} → 配送商售價 ${formatMoney(state.prices.distributorPrice)} → 批發商售價 ${formatMoney(state.prices.wholesalerPrice)} → 零售價 ${formatMoney(state.prices.retailPrice)}。`;
+        $("history-rows").innerHTML = state.demandHistory.map((demand, index) => {
+          const roleDemands = state.roles.map((role) => role.history[index].demand);
+          return `<tr><td>${index + 1}</td><td>${demand}</td>${roleDemands.map((value) => `<td>${value}</td>`).join("")}<td>${Math.max(...roleDemands)}</td></tr>`;
+        }).join("");
+        $("result-status").textContent = state.complete
+          ? (language === "en"
+            ? `Simulation complete: ${state.totalWeeks} weeks · ${DEMAND_NAMES[state.script]} · costs are settled through the final week (ending pipeline shipments are excluded).`
+            : `模擬完成：${state.totalWeeks} 週 · ${DEMAND_NAMES[state.script]} · 成本已結算至最後一週（期末在途貨物不計入本次成本）。`)
+          : (language === "en"
+            ? `In progress: ${state.week} / ${state.totalWeeks} weeks · ${DEMAND_NAMES[state.script]}. Ending pipeline shipments are excluded from cost.`
+            : `進行中：${state.week} / ${state.totalWeeks} 週 · ${DEMAND_NAMES[state.script]}。期末在途貨物不計入本次成本。`);
+      }
+
+      function renderResults() {
+        if (!state || !state.complete) {
+          $("results-area").hidden = true;
+          $("wave-playback-controls").hidden = true;
+          return;
+        }
+        $("results-area").hidden = false;
+        $("wave-playback-controls").hidden = false;
+        stopWavePlayback("播放完成的每週需求波形；手動選週仍可隨時使用。");
+        $("scenario-indicator").textContent = `${INFORMATION_MODES[state.informationMode].name} · 遊戲已結束`;
+        $("visibility-note").textContent = state.informationMode === "local"
+          ? (language === "en"
+            ? "Game over. Your in-game view remains above; the full four-role teaching review is now available below."
+            : "遊戲已結束。上方保留你在最後一週可見的資訊；下方已開放四個角色的完整教學復盤。")
+          : (language === "en"
+            ? "Game over. The final in-game role view remains above; the complete teaching review is below."
+            : "遊戲已結束。上方保留最後一週的角色資訊；下方為完整教學復盤。");
+        $("review-scenario-note").textContent = INFORMATION_MODES[state.informationMode].review;
+        renderCharts();
+        renderScore();
+        translatePage();
+      }
+
+      function clearResults() {
+        $("results-area").hidden = true;
+        ["demand-chart", "cost-chart", "profit-chart", "demand-legend", "cost-legend", "profit-legend", "score-rows", "history-rows"].forEach((id) => {
+          $(id).innerHTML = "";
+        });
+        $("bullwhip-summary").textContent = "";
+        $("customer-spend-summary").textContent = "";
+        $("price-summary").textContent = "";
+        $("result-status").textContent = "";
+        $("review-scenario-note").textContent = "";
+      }
+
+      function beginGame(event) {
+        event.preventDefault();
+        const prices = readPrices();
+        if (!validatePrices(prices)) return;
+        stopWavePlayback("遊戲完成後可播放逐週需求變化。");
+        $("wave-playback-controls").hidden = true;
+        clearResults();
+        waveRenderedWeek = 0;
+        const roleId = $("player-role").value;
+        state = createGame({
+          playerName: $("player-name").value.trim() || "學生",
+          playerRoleId: roleId,
+          playerRoleIndex: ROLES.findIndex((role) => role.id === roleId),
+          informationMode: $("setup-form").elements["information-mode"].value,
+          totalWeeks: Number($("round-count").value),
+          script: $("demand-script").value,
+          prices
+        });
+        $("active-player-name").textContent = state.playerName;
+        $("active-player-role").textContent = state.roles[state.playerRoleIndex].name;
+        $("setup-card").hidden = true;
+        $("game-area").hidden = false;
+        $("reset-row").hidden = false;
+        renderRoleStrip();
+        renderCurrentWeek();
+        renderResults();
+        $("game-area").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function advanceWeek() {
+        if (!state || state.complete) return;
+        const value = Number($("order-input").value);
+        if ($("order-input").value.trim() === "" || !Number.isInteger(value) || value < 0 || value > 999) {
+          $("order-input").setCustomValidity("請輸入 0 至 999 之間的整數。");
+          $("order-input").reportValidity();
+          return;
+        }
+        $("order-input").setCustomValidity("");
+        const turn = playRound(state, value);
+        if (turn.complete) {
+          $("round-current").textContent = String(state.week);
+          if (state.informationMode === "full" || state.playerRoleId === "retailer") {
+            $("customer-demand").textContent = String(turn.customerDemand);
+          }
+          $("order-input").disabled = true;
+          $("play-round").disabled = true;
+          $("play-round").textContent = "模擬已完成";
+          const finalDemands = state.roles.map((role) => role.history.at(-1).demand);
+          renderOperationalRows(finalDemands, true);
+          $("week-feedback").hidden = false;
+          $("week-feedback").textContent = language === "en"
+            ? `Simulation complete! ${state.roles[state.playerRoleIndex].name} ordered ${turn.roles[state.playerRoleIndex].order} cases in week ${state.week}. The full supply-chain teaching review is now available below.`
+            : `模擬完成！你的角色 ${state.roles[state.playerRoleIndex].name} 在第 ${state.week} 週下單 ${turn.roles[state.playerRoleIndex].order} 箱。下方已開放完整供應鏈教學復盤。`;
+          renderOperationalViews(state);
+          renderResults();
+        } else {
+          renderCurrentWeek();
+        }
+      }
+
+      function svgImageFor(container) {
+        const source = container.querySelector("svg");
+        if (!source) return Promise.reject(new Error("目前圖表尚無可匯出的 SVG。"));
+        const clone = source.cloneNode(true);
+        clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        const sourceNodes = [source, ...source.querySelectorAll("*")];
+        const cloneNodes = [clone, ...clone.querySelectorAll("*")];
+        const styleProperties = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "font-size", "font-family", "font-weight", "text-anchor", "opacity"];
+        sourceNodes.forEach((element, index) => {
+          const computed = getComputedStyle(element);
+          const target = cloneNodes[index];
+          for (const property of styleProperties) {
+            const value = computed.getPropertyValue(property);
+            if (value) target.style.setProperty(property, value);
+          }
+        });
+        const bounds = source.viewBox.baseVal;
+        clone.setAttribute("width", String(bounds.width || 800));
+        clone.setAttribute("height", String(bounds.height || 265));
+        const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => { URL.revokeObjectURL(url); resolve(image); };
+          image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("無法將 SVG 圖表轉成影像。")); };
+          image.src = url;
+        });
+      }
+
+      function chartTitle(container) {
+        return container.closest(".live-chart-card")?.querySelector("h3")?.textContent
+          || container.closest(".panel")?.querySelector(".panel-head h2")?.textContent
+          || "每週營運箱數分布";
+      }
+
+      function drawLegend(context, container, x, y, maxWidth) {
+        const items = [...(container.parentElement?.querySelector(".chart-legend")?.querySelectorAll(".legend-item") || [])];
+        if (!items.length) return;
+        context.font = "16px Arial, sans-serif";
+        context.textBaseline = "middle";
+        let currentX = x;
+        let currentY = y;
+        for (const item of items) {
+          const label = item.textContent.trim();
+          const line = item.querySelector(".legend-line");
+          const color = line ? getComputedStyle(line).getPropertyValue("--legend").trim() || "#444" : "#444";
+          const needed = context.measureText(label).width + 54;
+          if (currentX + needed > x + maxWidth) {
+            currentX = x;
+            currentY += 30;
+          }
+          context.strokeStyle = color;
+          context.lineWidth = 4;
+          if (line?.classList.contains("dashed")) context.setLineDash([6, 5]);
+          context.beginPath();
+          context.moveTo(currentX, currentY);
+          context.lineTo(currentX + 30, currentY);
+          context.stroke();
+          context.setLineDash([]);
+          context.fillStyle = "#29332b";
+          context.fillText(label, currentX + 38, currentY);
+          currentX += needed;
+        }
+      }
+
+      async function drawChartTile(context, container, x, y, width, height) {
+        context.fillStyle = "#fff";
+        context.fillRect(x, y, width, height);
+        context.strokeStyle = "#d9ded5";
+        context.strokeRect(x, y, width, height);
+        context.fillStyle = "#26342b";
+        context.font = "bold 23px Arial, sans-serif";
+        context.fillText(chartTitle(container), x + 24, y + 34);
+        const image = await svgImageFor(container);
+        const availableWidth = width - 48;
+        const availableHeight = height - 122;
+        const ratio = image.width / image.height;
+        const imageWidth = Math.min(availableWidth, availableHeight * ratio);
+        const imageHeight = imageWidth / ratio;
+        context.drawImage(image, x + (width - imageWidth) / 2, y + 54, imageWidth, imageHeight);
+        drawLegend(context, container, x + 24, y + height - 42, width - 48);
+      }
+
+      async function downloadChartPng(chartId, overview = false) {
+        const containers = overview
+          ? [...document.querySelectorAll("[data-export-chart]")].map((button) => $(button.dataset.exportChart)).filter((element) => element?.querySelector("svg"))
+          : [$(chartId)].filter((element) => element?.querySelector("svg"));
+        if (!containers.length) {
+          alert(language === "en" ? "No chart is available to export yet." : "目前沒有可匯出的圖表。");
+          return;
+        }
+        const tileWidth = overview ? 900 : 1800;
+        const tileHeight = overview ? 620 : 1050;
+        const columns = overview ? 2 : 1;
+        const rows = overview ? Math.ceil(containers.length / columns) : 1;
+        const canvas = document.createElement("canvas");
+        canvas.width = tileWidth * columns;
+        canvas.height = tileHeight * rows;
+        const context = canvas.getContext("2d");
+        context.fillStyle = "#f3f5f0";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        for (let index = 0; index < containers.length; index += 1) {
+          const x = (index % columns) * tileWidth;
+          const y = Math.floor(index / columns) * tileHeight;
+          await drawChartTile(context, containers[index], x, y, tileWidth, tileHeight);
+        }
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            alert(language === "en" ? "The chart image could not be created." : "無法產生圖表影像。");
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = overview ? "beer-game-charts-overview.png" : `beer-game-${chartId}.png`;
+          link.click();
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      }
+
+      function csvCell(value) {
+        const text = String(value ?? "");
+        return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+      }
+
+      function buildCsv(game) {
+        const headers = [
+          "週次",
+          "顧客需求_外生基準",
+          "最終顧客支出",
+          "零售商售價_每箱",
+          "批發商售價_每箱",
+          "配送商售價_每箱",
+          "製造商售價_每箱",
+          "製造商生產成本_每箱"
+        ];
+        for (const role of game.roles) {
+          headers.push(
+            `${role.name}_收到需求`,
+            `${role.name}_下單量`,
+            `${role.name}_到貨量`,
+            `${role.name}_出貨量`,
+            `${role.name}_期末庫存`,
+            `${role.name}_期末欠交`,
+            `${role.name}_持有成本`,
+            `${role.name}_缺貨成本`,
+            `${role.name}_累積持有與缺貨成本`,
+            `${role.name}_營收`,
+            `${role.name}_貨品成本計算數量`,
+            `${role.name}_貨品單位成本`,
+            `${role.name}_進貨／生產成本`,
+            `${role.name}_毛利`,
+            `${role.name}_總成本`,
+            `${role.name}_累積總成本`,
+            `${role.name}_淨獲利`
+          );
+          if (role.id === "manufacturer") {
+            headers.push(`${role.name}_本週完成生產量`, `${role.name}_未完成生產計畫量`);
+          }
+          if (role.id === "distributor") {
+            headers.push(`${role.name}_製造商出貨在途量`);
+          }
+        }
+        const lines = [headers, ...Array.from({ length: game.week }, (_, index) => {
+          const row = [
+            index + 1,
+            game.demandHistory[index],
+            game.roles[0].history[index].revenue,
+            game.prices.retailPrice,
+            game.prices.wholesalerPrice,
+            game.prices.distributorPrice,
+            game.prices.manufacturerPrice,
+            game.prices.productionCost
+          ];
+          for (const role of game.roles) {
+            const entry = role.history[index];
+            row.push(
+              entry.demand,
+              entry.order,
+              entry.received,
+              entry.shipped,
+              entry.stock,
+              entry.backlog,
+              entry.holding,
+              entry.shortage,
+              entry.cumulativeCost,
+              entry.revenue,
+              entry.costQuantity,
+              entry.unitCost,
+              entry.goodsCost,
+              entry.grossProfit,
+              entry.totalCost,
+              entry.cumulativeTotalCost,
+              entry.netProfit
+            );
+            if (role.id === "manufacturer") {
+              row.push(entry.produced, entry.productionPipeline);
+            }
+            if (role.id === "distributor") {
+              row.push(entry.manufacturerInTransit);
+            }
+          }
+          return row;
+        })];
+        return "\uFEFF" + lines.map((row) => row.map(csvCell).join(",")).join("\r\n");
+      }
+
+      function downloadCsv() {
+        if (!state || !state.week) return;
+        const blob = new Blob([buildCsv(state)], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `beer-game-${state.script}-${state.week}-weeks.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function restartGame() {
+        stopWavePlayback("遊戲完成後可播放逐週需求變化。");
+        state = null;
+        clearResults();
+        $("setup-card").hidden = false;
+        $("game-area").hidden = true;
+        $("results-area").hidden = true;
+        $("wave-playback-controls").hidden = true;
+        $("reset-row").hidden = true;
+        $("setup-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      $("setup-form").addEventListener("submit", beginGame);
+      $("language-toggle").addEventListener("click", () => {
+        language = language === "zh" ? "en" : "zh";
+        if (!state) {
+          translatePage();
+          return;
+        }
+        if (!state.complete) {
+          const pendingOrder = $("order-input").value;
+          renderCurrentWeek();
+          if (pendingOrder !== "") $("order-input").value = pendingOrder;
+          return;
+        }
+        renderRoleStrip();
+        const finalDemands = state.roles.map((role) => role.history.at(-1).demand);
+        renderOperationalRows(finalDemands, true);
+        renderOperationalViews(state);
+        renderResults();
+      });
+      document.querySelectorAll("[data-export-chart]").forEach((button) => {
+        button.addEventListener("click", () => downloadChartPng(button.dataset.exportChart));
+      });
+      $("download-all-charts").addEventListener("click", () => downloadChartPng("", true));
+      $("play-round").addEventListener("click", advanceWeek);
+      $("wave-week-select").addEventListener("change", () => {
+        if (!state) return;
+        renderDemandWave(state);
+        if (wavePlaybackTimer !== null) {
+          if (Number($("wave-week-select").value) >= state.week) {
+            stopWavePlayback(`已播放至最後一週（第 ${state.week} 週）。`);
+          } else {
+            $("wave-playback-status").textContent = translateText(`播放中：第 ${$("wave-week-select").value} / ${state.week} 週；可手動選擇週次。`);
+          }
+        }
+      });
+      $("wave-playback-toggle").addEventListener("click", () => {
+        if (wavePlaybackTimer === null) startWavePlayback();
+        else stopWavePlayback(`已暫停於第 ${$("wave-week-select").value} 週。`);
+      });
+      PRICE_INPUT_IDS.forEach((id) => {
+        $(id).addEventListener("input", () => {
+          PRICE_INPUT_IDS.forEach((fieldId) => $(fieldId).setCustomValidity(""));
+        });
+      });
+      $("download-csv").addEventListener("click", downloadCsv);
+      $("restart-game").addEventListener("click", restartGame);
+      $("reset-row").hidden = true;
+      $("order-input").addEventListener("input", () => $("order-input").setCustomValidity(""));
+
+    })();
+  </script>
+</body>
+</html>

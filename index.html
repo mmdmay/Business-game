@@ -1,0 +1,145 @@
+﻿<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="探索零售營運、供應鏈啤酒遊戲與其他商業模擬體驗。">
+  <title>商業營運遊戲平台</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f4f6f2;
+      --surface: #fff;
+      --surface-soft: #f8faf7;
+      --ink: #1e2b23;
+      --muted: #647168;
+      --line: #e1e8e1;
+      --green: #2e704d;
+      --green-dark: #22583b;
+      --green-soft: #e8f2eb;
+      --amber: #99621d;
+      --amber-soft: #fbf2df;
+      --shadow: 0 14px 36px rgb(30 48 35 / 7%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --page: #151b17;
+        --surface: #1e2721;
+        --surface-soft: #252f28;
+        --ink: #edf3ee;
+        --muted: #a4b0a7;
+        --line: #354139;
+        --green: #8bc59b;
+        --green-dark: #a8d7b4;
+        --green-soft: #293a2e;
+        --amber: #e2b76f;
+        --amber-soft: #3a3020;
+        --shadow: 0 14px 36px rgb(0 0 0 / 18%);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; background: var(--page); color: var(--ink); }
+    a { color: inherit; }
+    .skip-link { position: absolute; top: 10px; left: 10px; z-index: 1; padding: 10px 14px; transform: translateY(-160%); border-radius: 8px; background: var(--surface); }
+    .skip-link:focus { transform: translateY(0); }
+    .page { width: min(100% - 40px, 1060px); margin: 0 auto; padding: 58px 0 36px; }
+    .hero { max-width: 720px; margin-bottom: 42px; }
+    .eyebrow { margin: 0 0 12px; color: var(--green); font-size: 12px; font-weight: 750; letter-spacing: .12em; }
+    h1 { margin: 0; font-size: clamp(32px, 6vw, 52px); line-height: 1.12; letter-spacing: -.045em; }
+    .intro { max-width: 620px; margin: 16px 0 0; color: var(--muted); font-size: 16px; line-height: 1.75; }
+    .section { margin-top: 36px; }
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    h2 { margin: 0; font-size: 20px; letter-spacing: -.025em; }
+    .section-note { margin: 0; color: var(--muted); font-size: 13px; }
+    .game-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .game-card { display: flex; min-height: 190px; flex-direction: column; padding: 21px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); }
+    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .game-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 12px; background: var(--green-soft); color: var(--green-dark); font-size: 21px; }
+    .badge { padding: 5px 9px; border-radius: 99px; background: var(--green-soft); color: var(--green-dark); font-size: 11px; font-weight: 700; }
+    .badge.external { background: var(--amber-soft); color: var(--amber); }
+    h3 { margin: 17px 0 6px; font-size: 17px; letter-spacing: -.02em; }
+    .card-copy { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .card-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: auto; padding-top: 19px; }
+    .card-link { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); color: var(--green-dark); font-size: 12px; font-weight: 700; text-decoration: none; transition: border-color .16s, transform .16s, background .16s; }
+    .card-link:hover { transform: translateY(-1px); border-color: var(--green); background: var(--green-soft); }
+    .card-link.primary { border-color: var(--green); background: var(--green); color: #fff; }
+    .card-link.primary:hover { border-color: var(--green-dark); background: var(--green-dark); }
+    a:focus-visible { outline: 3px solid color-mix(in srgb, var(--green) 42%, transparent); outline-offset: 3px; }
+    footer { margin-top: 42px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+    @media (max-width: 620px) {
+      .page { width: min(100% - 28px, 520px); padding-top: 38px; }
+      .hero { margin-bottom: 32px; }
+      .section-heading { align-items: flex-start; flex-direction: column; gap: 5px; }
+      .game-grid { grid-template-columns: 1fr; }
+      .game-card { min-height: 180px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#games">跳至遊戲列表</a>
+  <main class="page" id="games">
+    <header class="hero">
+      <p class="eyebrow">BUSINESS GAME PORTAL</p>
+      <h1>商業營運遊戲平台</h1>
+      <p class="intro">透過互動模擬練習營運決策，從零售門市管理到供應鏈協作；選擇自製遊戲立即開始，或探索精選外部平台。</p>
+    </header>
+
+    <section class="section" aria-labelledby="original-games-title">
+      <div class="section-heading">
+        <h2 id="original-games-title">自製遊戲</h2>
+        <p class="section-note">由本平台提供的獨立模擬體驗</p>
+      </div>
+      <div class="game-grid">
+        <article class="game-card">
+          <div class="card-top"><span class="game-icon" aria-hidden="true">▤</span><span class="badge">自製</span></div>
+          <h3>零售業模擬</h3>
+          <p class="card-copy">經營零售公司，規劃門市、庫存與定價，觀察每天的營運成果。原 Fieldwork — Business Simulation Lab 完整保留。</p>
+          <div class="card-actions"><a class="card-link primary" href="retail-simulation.html">進入零售模擬 <span aria-hidden="true">→</span></a></div>
+        </article>
+        <article class="game-card">
+          <div class="card-top"><span class="game-icon" aria-hidden="true">↗</span><span class="badge">自製</span></div>
+          <h3>供應鏈啤酒遊戲</h3>
+          <p class="card-copy">扮演供應鏈中的不同角色，透過單人教學練習下單、庫存與需求變動的決策。</p>
+          <div class="card-actions"><a class="card-link primary" href="beer-game-solo.html">開始單人對電腦教學 <span aria-hidden="true">→</span></a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="external-games-title">
+      <div class="section-heading">
+        <h2 id="external-games-title">外部平台</h2>
+        <p class="section-note">前往外部網站（於新分頁開啟）</p>
+      </div>
+      <div class="game-grid">
+        <article class="game-card">
+          <div class="card-top"><span class="game-icon" aria-hidden="true">◎</span><span class="badge external">外部</span></div>
+          <h3>MonsoonSIM</h3>
+          <p class="card-copy">以企業資源規劃與營運管理為核心的商業模擬平台。</p>
+          <div class="card-actions"><a class="card-link" href="https://monsoonsim.com/" target="_blank" rel="noopener noreferrer">前往 MonsoonSIM <span aria-hidden="true">↗</span></a></div>
+        </article>
+        <article class="game-card">
+          <div class="card-top"><span class="game-icon" aria-hidden="true">⇄</span><span class="badge external">外部</span></div>
+          <h3>MA-system Beer Game</h3>
+          <p class="card-copy">透過經典啤酒遊戲模擬供應鏈的訂單、庫存與延遲效應。</p>
+          <div class="card-actions"><a class="card-link" href="https://beergame.masystem.se/" target="_blank" rel="noopener noreferrer">前往 MA-system Beer Game <span aria-hidden="true">↗</span></a></div>
+        </article>
+      </div>
+    </section>
+
+    <footer>商業營運遊戲平台 · 自製遊戲與外部資源一覽</footer>
+  </main>
+</body>
+</html>
